@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<title>Fluxo Caixa</title>
+<style>
+    :root { --bg-body: #f1f5f9; --bg-container: #ffffff; --texto-principal: #0f172a; --texto-secundario: #64748b; --borda: #e2e8f0; --radius: 12px; --entrada: #10b981; --saida: #ef4444; --cartao: #f59e0b; --reserva-cor: #06b6d4; --header-bg: #2563eb; --header-txt: #ffffff; }
+    body.theme-escuro { --bg-body: #0f172a; --bg-container: #1e293b; --texto-principal: #f8fafc; --texto-secundario: #94a3b8; --borda: #334155; --header-bg: #1e293b; }
+    body.theme-white { --bg-body: #ffffff; --bg-container: #f8fafc; --texto-principal: #1e293b; --borda: #cbd5e1; --header-bg: #e2e8f0; --header-txt: #0f172a; }
+    body.theme-vintage { --bg-body: #fffae0; --bg-container: #fffdf5; --texto-principal: #2b2b2b; --borda: #2b2b2b; --radius: 0px; --entrada: #49a078; --saida: #d64933; --header-bg: #2b2b2b; --header-txt: #fffae0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg-body); color: var(--texto-principal); padding: 16px 16px 95px 16px; }
+.container { max-width: 500px; margin: 0 auto; }
+.app-header { display: flex; justify-content: space-between; padding: 12px; background: var(--header-bg); border-radius: var(--radius); margin-bottom: 16px; color: var(--header-txt); }
+.icon-btn { background: none; border: none; font-size: 1.2rem; color: var(--header-txt); cursor: pointer; }
+.app-view { display: none; }
+.app-view.ativa { display: block; }
+
+/* Navegação de Mês por Setas e Clique */
+.seletor-mes-topo { display: flex; align-items: center; justify-content: space-between; background: var(--bg-container); border: 1px solid var(--borda); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 16px; }
+.btn-mes-nav { background: none; border: none; font-size: 1.1rem; color: var(--texto-principal); cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.btn-mes-nav:hover { background: var(--bg-body); }
+.mes-titulo-atual { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--texto-principal); }
+
+.cards-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+.card { background: var(--bg-container); padding: 16px; text-align: center; border-radius: var(--radius); border: 1px solid var(--borda); }
+.card.saldo-total { grid-column: span 2; }
+.card.saldo-total p { font-size: 2.2rem; font-weight: 700; }
+.info-subtil-container { margin-top: 12px; border-top: 1px solid var(--borda); padding-top: 16px; }
+.cor-entrada { color: var(--entrada); }.cor-saida { color: var(--saida); }.cor-cartao { color: var(--cartao); }.cor-reserva { color: var(--reserva-cor); }
+.filtro-select { width: 100%; padding: 12px; border-radius: var(--radius); border: 1px solid var(--borda); margin-bottom: 10px; background: var(--bg-container); color: var(--texto-principal); }
+.secao-conteudo { background: var(--bg-container); padding: 20px; border-radius: var(--radius); border: 1px solid var(--borda); margin-bottom: 20px; }
+.colunas-container { display: flex; justify-content: space-around; height: 120px; align-items: flex-end; border-bottom: 1px solid var(--borda); text-align: center; }
+.coluna-vertical-barra { width: 30px; border-radius: 6px 6px 0 0; transition: height 0.3s; }
+.donut-chart { width: 140px; height: 140px; border-radius: 50%; margin: 12px auto; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.donut-hole { width: 96px; height: 96px; background: var(--bg-container); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.config-btn-bloco { width: 100%; padding: 16px; border-radius: var(--radius); border: 1px solid var(--borda); background: var(--bg-container); color: var(--texto-principal); margin-bottom: 12px; text-align: left; cursor: pointer; }
+.chat-input-area { display: flex; gap: 8px; background: var(--bg-container); padding: 6px 16px; border-radius: 24px; border: 1px solid var(--borda); }
+.chat-input { flex: 1; border: none; background: none; outline: none; color: var(--texto-principal); }
+.btn-enviar { background: var(--header-bg); color: var(--header-txt); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+.menu-rodape-wrapper { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: var(--bg-container); padding: 10px 16px; border-top: 1px solid var(--borda); z-index: 99; }
+.menu-rodape { display: grid; grid-template-columns: repeat(5, 1fr); }
+.tab-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--texto-secundario); font-size: 0.75rem; cursor: pointer; }
+.tab-item.ativo { color: var(--header-bg); font-weight: 700; }
+.beneficio-resumo { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px; }
+.beneficio-card { background:var(--bg-container); padding:14px; border:1px solid var(--borda); border-radius:var(--radius); }
+.beneficio-card.clicavel { cursor:pointer; transition:transform .12s, border-color .12s, box-shadow .12s; }
+.beneficio-card.clicavel:hover { transform:translateY(-1px); }
+.beneficio-card.clicavel.selecionado { border-color:var(--header-bg); box-shadow:0 0 0 2px color-mix(in srgb, var(--header-bg) 15%, transparent); }
+.beneficio-titulo { display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:8px; }
+.beneficio-seta { font-size:1.3rem; color:var(--texto-secundario); }
+.beneficio-valor { font-size:1.45rem; font-weight:700; margin-bottom:6px; }
+.beneficio-card .linha-2 { line-height:1.5; }
+.beneficio-acoes { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px; }
+.btn-beneficio { padding:12px; border-radius:var(--radius); border:1px solid var(--borda); background:var(--bg-container); color:var(--texto-principal); cursor:pointer; font-weight:600; }
+.badge-beneficio { display:inline-block; font-size:.7rem; padding:3px 7px; border-radius:10px; background:var(--bg-body); border:1px solid var(--borda); margin-left:5px; }
+.item-transacao { padding: 10px 5px; border-bottom: 1px solid var(--borda); cursor: pointer; transition: background 0.1s; }
+.item-transacao:hover { background: var(--bg-body); }
+.linha-1 { display: flex; justify-content: space-between; }
+.linha-2 { font-size: 0.75rem; color: var(--texto-secundario); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.modal-container { background: var(--bg-container); color: var(--texto-principal); padding: 20px; border-radius: var(--radius); width: 90%; max-width: 400px; }
+.btn-resposta { padding: 10px 14px; margin: 6px; border-radius: 20px; border: 1px solid var(--borda); background: var(--bg-body); color: var(--texto-principal); cursor: pointer; font-weight: 600; }
+
+.form-grupo { margin-bottom: 12px; }
+.form-grupo label { display: block; font-size: 0.85rem; color: var(--texto-secundario); margin-bottom: 4px; }
+.form-grupo input, .form-grupo select { width: 100%; padding: 10px; border-radius: var(--radius); border: 1px solid var(--borda); background: var(--bg-container); color: var(--texto-principal); }
+.modal-botoes { display: flex; gap: 8px; margin-top: 16px; }
+.btn-acao-modal { flex: 1; padding: 10px; border-radius: var(--radius); border: none; font-weight: 600; cursor: pointer; }
+.btn-salvar { background: var(--header-bg); color: var(--header-txt); }
+.btn-excluir { background: var(--saida); color: #fff; }
+.btn-cancelar { background: var(--borda); color: var(--texto-principal); }
+
+/* Grid de seleção rápida de meses no Modal */
+.grid-meses-modal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 300px; overflow-y: auto; margin-top: 10px; }
+.btn-mes-grid { padding: 10px; border-radius: var(--radius); border: 1px solid var(--borda); background: var(--bg-body); color: var(--texto-principal); font-size: 0.85rem; cursor: pointer; text-align: center; }
+.btn-mes-grid.ativo { background: var(--header-bg); color: var(--header-txt); border-color: transparent; font-weight: bold; }
+    .valor-oculto {
+        font-size: 0 !important;
+    }
+    .valor-oculto::after {
+        content: '••••••';
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+
+.info-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.info-status-grid>div{border:1px solid var(--borda);border-radius:var(--radius);padding:12px;background:var(--bg-body);display:flex;flex-direction:column;gap:5px}
+.info-status-grid strong{font-size:1.05rem}
+.item-recorrente{padding:10px 0;border-top:1px solid var(--borda);display:flex;justify-content:space-between;gap:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="app-header">
+    <div class="app-title">Meu Saldo</div>
+    <div><button class="icon-btn" onclick="alternarVisibilidade()">🔓</button><button class="icon-btn" onclick="alternarTema()">🫟</button></div>
+</div>
+
+<!-- BARRA DE NAVEGAÇÃO DE MÊS COM SETAS E CLIQUE -->
+<div class="seletor-mes-topo">
+    <button class="btn-mes-nav" onclick="mudarMes(-1)">◀</button>
+    <div class="mes-titulo-atual" id="label-mes-topo" onclick="abrirModalSeletorMes()">📅 Mês Atual</div>
+    <button class="btn-mes-nav" onclick="mudarMes(1)">▶</button>
+</div>
+
+<div class="app-view ativa" id="view-inicio">
+    <div class="cards-container">
+        <div class="card"><h3>entradas</h3><p class="cor-entrada">R$ <span id="card-entradas">0.00</span></p></div>
+        <div class="card"><h3>saídas</h3><p class="cor-saida">R$ <span id="card-saidas">0.00</span></p></div>
+        <div class="card"><h3>cartão</h3><p class="cor-cartao">R$ <span id="card-cartao">0.00</span></p></div>
+        
+        <div class="card saldo-total">
+            <h3>Saldo Atual</h3>
+            <p id="card-saldo">R$ 0.00</p>
+            <div class="info-subtil-container">
+                <div><strong>Média/Dia:</strong> <span id="previsao-valor">R$ 0.00</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="campo-texto" class="chat-input" placeholder="Ex: salário 3500, gasolina 50 ou saldo +100">
+        <button type="button" class="btn-enviar" id="btn-enviar-comando" onclick="enviarComando()">➔</button>
+    </div>
+</div>
+
+<div class="app-view" id="view-historico">
+    <div class="secao-conteudo">
+        <div class="linha-1" style="cursor:pointer;" onclick="alternarHistorico('despesas')">
+            <h4 style="margin:0;">Histórico de despesas</h4><span id="seta-historico-despesas">▸</span>
+        </div>
+        <div id="painel-historico-despesas" style="display:none;margin-top:12px;">
+            <label class="linha-2">Período</label>
+            <select id="filtro-periodo-despesas" class="filtro-select" onchange="atualizarAplicativo()">
+                <option value="mes" selected>Este mês</option>
+                <option value="hoje">Hoje</option><option value="7dias">Últimos 7 dias</option><option value="mesAnterior">Mês anterior</option><option value="personalizado">Personalizado</option>
+            </select>
+            <div id="datas-personalizadas-despesas" style="display:none;gap:8px;grid-template-columns:1fr 1fr;margin-bottom:10px;">
+                <input type="date" id="data-inicio-despesas" onchange="atualizarAplicativo()">
+                <input type="date" id="data-fim-despesas" onchange="atualizarAplicativo()">
+            </div>
+            <select id="filtro-tipo" class="filtro-select" onchange="atualizarAplicativo()">
+                <option value="todos">Todos os Tipos</option><option value="entrada">Entradas</option>
+                <option value="saida">Saídas</option><option value="cartao">Cartão</option><option value="reserva">Reserva</option><option value="ajuste">Ajustes</option>
+            </select>
+            <div id="lista-transacoes-container"></div>
+        </div>
+    </div>
+</div>
+
+<div class="app-view" id="view-beneficios">
+    <div class="beneficio-resumo" id="resumo-por-beneficio">
+        <div class="beneficio-card clicavel" data-beneficio="VR" onclick="selecionarBeneficio('VR')"><div class="beneficio-titulo"><span>🍽️ VR</span><span class="beneficio-seta">›</span></div><div class="beneficio-valor cor-entrada" id="saldo-VR">R$ 0,00</div><div class="linha-2"><span>Recebido <b id="recebido-VR">R$ 0,00</b></span> · <span>Utilizado <b id="utilizado-VR">R$ 0,00</b></span></div></div>
+        <div class="beneficio-card clicavel" data-beneficio="VA" onclick="selecionarBeneficio('VA')"><div class="beneficio-titulo"><span>🛒 VA</span><span class="beneficio-seta">›</span></div><div class="beneficio-valor cor-entrada" id="saldo-VA">R$ 0,00</div><div class="linha-2"><span>Recebido <b id="recebido-VA">R$ 0,00</b></span> · <span>Utilizado <b id="utilizado-VA">R$ 0,00</b></span></div></div>
+        <div class="beneficio-card clicavel" data-beneficio="Combustível" onclick="selecionarBeneficio('Combustível')"><div class="beneficio-titulo"><span>⛽ Combustível</span><span class="beneficio-seta">›</span></div><div class="beneficio-valor cor-entrada" id="saldo-Combustível">R$ 0,00</div><div class="linha-2"><span>Recebido <b id="recebido-Combustível">R$ 0,00</b></span> · <span>Utilizado <b id="utilizado-Combustível">R$ 0,00</b></span></div></div>
+        <div class="beneficio-card clicavel" data-beneficio="Outros" onclick="selecionarBeneficio('Outros')"><div class="beneficio-titulo"><span>🎁 Outros</span><span class="beneficio-seta">›</span></div><div class="beneficio-valor cor-entrada" id="saldo-Outros">R$ 0,00</div><div class="linha-2"><span>Recebido <b id="recebido-Outros">R$ 0,00</b></span> · <span>Utilizado <b id="utilizado-Outros">R$ 0,00</b></span></div></div>
+    </div>
+    <div class="secao-conteudo" id="detalhe-beneficio" style="display:none;">
+        <div class="linha-1"><h4 id="titulo-detalhe-beneficio">Detalhes</h4><button class="btn-beneficio" style="padding:6px 10px;" onclick="selecionarBeneficio('todos')">Todos</button></div>
+        <div class="linha-2" id="subtitulo-detalhe-beneficio" style="margin-top:6px;"></div>
+    </div>
+    <div class="beneficio-acoes">
+        <button class="btn-beneficio" onclick="abrirModalNovoBeneficio('entrada')">➕ Receber</button>
+        <button class="btn-beneficio" onclick="abrirModalNovoBeneficio('saida')">➖ Utilizar</button>
+    </div>
+    <div class="secao-conteudo">
+        <div class="linha-1" style="cursor:pointer;" onclick="alternarHistorico('beneficios')">
+            <h4 style="margin:0;">Histórico de Benefícios</h4><span id="seta-historico-beneficios">▸</span>
+        </div>
+        <div id="painel-historico-beneficios" style="display:none;margin-top:12px;">
+            <label class="linha-2">Período</label>
+            <select id="filtro-periodo-beneficios" class="filtro-select" onchange="atualizarBeneficios()">
+                <option value="mes" selected>Este mês</option>
+                <option value="hoje">Hoje</option><option value="7dias">Últimos 7 dias</option><option value="mesAnterior">Mês anterior</option><option value="personalizado">Personalizado</option>
+            </select>
+            <div id="datas-personalizadas-beneficios" style="display:none;gap:8px;grid-template-columns:1fr 1fr;margin-bottom:10px;">
+                <input type="date" id="data-inicio-beneficios" onchange="atualizarBeneficios()">
+                <input type="date" id="data-fim-beneficios" onchange="atualizarBeneficios()">
+            </div>
+            <select id="filtro-beneficio" class="filtro-select" onchange="atualizarBeneficios()">
+                <option value="todos">Todos</option><option value="VR">VR</option><option value="VA">VA</option><option value="Combustível">Combustível</option><option value="Outros">Outros</option>
+            </select>
+            <div id="lista-beneficios"></div>
+        </div>
+    </div>
+</div>
+
+<div class="app-view" id="view-graficos">
+    <div class="secao-conteudo">
+        <h4>Comparativo do Mês</h4>
+        <div class="colunas-container">
+            <div><span id="v-val-contas">R$ 0.00</span><div class="coluna-vertical-barra" id="v-bar-contas" style="background: var(--saida);"></div><span>Saídas</span></div>
+            <div><span id="v-val-cartoes">R$ 0.00</span><div class="coluna-vertical-barra" id="v-bar-cartoes" style="background: var(--cartao);"></div><span>Cartões</span></div>
+            <div><span id="v-val-reserva">R$ 0.00</span><div class="coluna-vertical-barra" id="v-bar-reserva" style="background: var(--reserva-cor);"></div><span>Reserva</span></div>
+        </div>
+    </div>
+    <div class="secao-conteudo">
+        <h4>Proporção</h4>
+        <div class="donut-chart" id="grafico-pizza-elemento"><div class="donut-hole"><span id="pizza-perc">0%</span></div></div>
+    </div>
+    <div class="secao-conteudo" style="margin-top:12px;">
+        <button type="button" class="btn-resposta" style="width:100%;" onclick="alternarVisaoFinanceira(this)">📊 Ver visão financeira</button>
+        <div id="visao-financeira-opcional" style="display:none;margin-top:12px;">
+            <h4>Visão Financeira</h4>
+            <div class="info-status-grid">
+                <div><span class="linha-2">Saldo disponível</span><strong id="status-saldo">R$ 0,00</strong></div>
+                <div><span class="linha-2">Reserva</span><strong id="status-reserva" class="cor-reserva">R$ 0,00</strong></div>
+                <div><span class="linha-2">Patrimônio total</span><strong id="status-patrimonio">R$ 0,00</strong></div>
+                <div><span class="linha-2">Recorrentes ativas</span><strong id="status-recorrentes">0</strong></div>
+            </div>
+            <div id="lista-recorrentes-status" style="margin-top:14px;"></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="app-view" id="view-config">
+    <div class="secao-conteudo">
+        <h4>Gerenciamento de Dados</h4>
+        <button class="config-btn-bloco" onclick="exportarBackup()">📥 Exportar</button>
+        <button class="config-btn-bloco" onclick="document.getElementById('input-file-backup').click()">📤 Importar</button>
+        <input type="file" id="input-file-backup" accept=".json" style="display: none;" onchange="importarBackup(event)">
+        <button class="config-btn-bloco" style="color:var(--saida);" onclick="resetarAplicativoTotal()">🗑️ Limpar Tudo</button>
+    </div>
+</div>
+
+<div class="menu-rodape-wrapper">
+    <div class="menu-rodape">
+        <button class="tab-item ativo" onclick="navegarPara('inicio')"><span>💬</span><span>Conversa</span></button>
+        <button class="tab-item" onclick="navegarPara('historico')"><span>📝</span><span>Histórico</span></button>
+        <button class="tab-item" onclick="navegarPara('beneficios')"><span>🎁</span><span>Benefícios</span></button>
+        <button class="tab-item" onclick="navegarPara('graficos')"><span>📊</span><span>Status</span></button>
+        <button class="tab-item" onclick="navegarPara('config')"><span>⚙️</span><span>Config</span></button>
+    </div>
+</div>
+</div>
+
+<!-- MODAL PERGUNTA CONTA -->
+<div class="modal-overlay" id="modal-pergunta">
+    <div class="modal-container">
+        <h3 id="texto-pergunta"></h3>
+        <div id="botoes-pergunta"></div>
+        <div class="modal-botoes" style="margin-top:12px;">
+            <button class="btn-acao-modal btn-cancelar" onclick="cancelarPergunta()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL RECORRÊNCIA -->
+<div class="modal-overlay" id="modal-recorrencia">
+    <div class="modal-container">
+        <h3>Esta conta é recorrente?</h3>
+        <p class="linha-2" style="margin:8px 0 14px;">Ela será lançada automaticamente nos próximos meses.</p>
+        <div id="botoes-recorrencia">
+            <button class="btn-resposta" onclick="responderRecorrencia(true)">Sim, é recorrente</button>
+            <button class="btn-resposta" onclick="responderRecorrencia(false)">Não</button>
+        </div>
+        <div class="modal-botoes" style="margin-top:12px;"><button class="btn-acao-modal btn-cancelar" onclick="fecharModalRecorrencia()">Cancelar</button></div>
+    </div>
+</div>
+
+<!-- MODAL SELECIONAR MÊS RÁPIDO -->
+<div class="modal-overlay" id="modal-seletor-mes">
+    <div class="modal-container">
+        <h3>Selecione o Mês / Ano</h3>
+        <div class="grid-meses-modal" id="grid-meses-container"></div>
+        <div class="modal-botoes" style="margin-top: 16px;">
+            <button class="btn-acao-modal btn-cancelar" onclick="fecharModalSeletorMes()">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BENEFÍCIO -->
+<div class="modal-overlay" id="modal-beneficio">
+    <div class="modal-container">
+        <h3 id="titulo-modal-beneficio">Lançar Benefício</h3>
+        <input type="hidden" id="beneficio-id">
+        <input type="hidden" id="beneficio-operacao">
+        <div class="form-grupo" style="margin-top:12px;"><label>Benefício</label><select id="beneficio-tipo"><option value="VR">VR</option><option value="VA">VA</option><option value="Combustível">Combustível</option><option value="Outros">Outros</option></select></div>
+        <div class="form-grupo"><label>Valor (R$)</label><input type="number" step="0.01" id="beneficio-valor"></div>
+        <div class="form-grupo"><label>Descrição</label><input type="text" id="beneficio-desc" placeholder="Ex: crédito mensal, abastecimento..."></div>
+        <div class="modal-botoes"><button class="btn-acao-modal btn-excluir" id="btn-excluir-beneficio-modal" style="display:none;" onclick="excluirBeneficioModal()">Excluir</button><button class="btn-acao-modal btn-cancelar" onclick="fecharModalBeneficio()">Cancelar</button><button class="btn-acao-modal btn-salvar" onclick="salvarBeneficioModal()">Salvar</button></div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR/EXCLUIR TRANSAÇÃO -->
+<div class="modal-overlay" id="modal-editar">
+    <div class="modal-container">
+        <h3>Editar Transação</h3>
+        <input type="hidden" id="edit-id">
+        <div class="form-grupo" style="margin-top: 12px;">
+            <label>Descrição</label>
+            <input type="text" id="edit-desc">
+        </div>
+        <div class="form-grupo">
+            <label>Valor (R$)</label>
+            <input type="number" step="0.01" id="edit-valor">
+        </div>
+        <div class="form-grupo">
+            <label>Tipo</label>
+            <select id="edit-tipo">
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+                <option value="cartao">Cartão</option>
+                <option value="reserva">Reserva</option>
+                <option value="ajuste">Ajuste de saldo</option>
+            </select>
+        </div>
+        <div class="form-grupo">
+            <label>Conta / Cartão / Origem</label>
+            <input type="text" id="edit-origem" placeholder="Ex: Nubank, Itaú, Mercado Pago, Bradesco, PicPay,Dinheiro...">
+        </div>
+        <div class="modal-botoes">
+            <button class="btn-acao-modal btn-excluir" onclick="excluirTransacaoModal()">Excluir</button>
+            <button class="btn-acao-modal btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
+            <button class="btn-acao-modal btn-salvar" onclick="salvarEdicaoModal()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let transacoes = [], beneficios = [], recorrencias = [], saldosOcultos = false, idPendente = null, tipoPendente = null, aguardandoParcelas = false, idRecorrenciaPendente = null;
+let anoAtualGlobal = new Date().getFullYear();
+let mesAtualGlobal = new Date().getMonth();
+let temasDisponiveis = ['padrao', 'escuro', 'white', 'vintage']; let temaAtualIndex = 0;
+const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const nomesMesesCompletos = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+function navegarPara(idAba) {
+    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('ativa'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('ativo'));
+    document.getElementById(`view-${idAba}`).classList.add('ativa');
+    const alvo = (typeof event !== 'undefined' && event && event.target) ? event.target.closest('.tab-item') : null;
+    if (alvo) alvo.classList.add('ativo');
+    else document.querySelector(`.tab-item[onclick="navegarPara('${idAba}')"]`)?.classList.add('ativo');
+    atualizarAplicativo();
+}
+
+function atualizarLabelTopo() {
+    document.getElementById('label-mes-topo').innerHTML = `📅 ${nomesMesesCompletos[mesAtualGlobal]} de ${anoAtualGlobal}`;
+}
+
+function mudarMes(direcao) {
+    mesAtualGlobal += direcao;
+    if (mesAtualGlobal > 11) {
+        mesAtualGlobal = 0;
+        anoAtualGlobal++;
+    } else if (mesAtualGlobal < 0) {
+        mesAtualGlobal = 11;
+        anoAtualGlobal--;
+    }
+    atualizarAplicativo();
+}
+
+function abrirModalSeletorMes() {
+    const container = document.getElementById('grid-meses-container');
+    let html = '';
+    
+    // Lista os últimos anos e próximos anos com base nas transações ou padrão atual
+    let anosEnvolvidos = new Set([new Date().getFullYear(), anoAtualGlobal]);
+    transacoes.forEach(t => anosEnvolvidos.add(t.ano));
+    
+    const anosArray = Array.from(anosEnvolvidos).sort();
+
+    anosArray.forEach(ano => {
+        for (let m = 0; m < 12; m++) {
+            let ativoCls = (m === mesAtualGlobal && ano === anoAtualGlobal) ? 'ativo' : '';
+            html += `<button class="btn-mes-grid ${ativoCls}" onclick="selecionarMesAno(${m}, ${ano})">${nomesMeses[m]}/${ano}</button>`;
+        }
+    });
+
+    container.innerHTML = html;
+    document.getElementById('modal-seletor-mes').style.display = 'flex';
+}
+
+function fecharModalSeletorMes() {
+    document.getElementById('modal-seletor-mes').style.display = 'none';
+}
+
+function selecionarMesAno(m, ano) {
+    mesAtualGlobal = m;
+    anoAtualGlobal = ano;
+    fecharModalSeletorMes();
+    atualizarAplicativo();
+}
+
+function enviarComando() {
+    const campo = document.getElementById('campo-texto');
+    if (!campo) return;
+    campo.blur();
+    processarComando();
+}
+
+const campoComando = document.getElementById('campo-texto');
+if (campoComando) {
+    campoComando.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            e.preventDefault();
+            e.stopPropagation();
+            enviarComando();
+        }
+    });
+}
+
+function detectarBeneficio(txt) {
+    if (/\b(vr|vale refeição|vale-refeição)\b/.test(txt)) return 'VR';
+    if (/\b(va|vale alimentação|vale-alimentacao|vale-alimentação)\b/.test(txt)) return 'VA';
+    if (/\b(combust[ií]vel|gasolina|abastec(?:i|e|ei|imento))\b/.test(txt) && /\b(benef[ií]cio|vale|recebi|gastei|usei|abasteci|cr[eé]dito)\b/.test(txt)) return 'Combustível';
+    if (/\b(outros|outro benefício|outro beneficio)\b/.test(txt)) return 'Outros';
+    return null;
+}
+
+function processarComando() {
+    const input = document.getElementById('campo-texto'); const txt = input.value.trim().toLowerCase();
+    const num = txt.match(/\d+([.,]\d+)?/g); if (!num) return alert("Digite um valor");
+    let valor = parseFloat(num[0].replace(',', '.'));
+    const beneficio = detectarBeneficio(txt);
+
+    if (beneficio) {
+        let operacao = /\b(gastei|usei|utilizei|pagamento|paguei|abasteci|consumi|saiu|sai)\b/.test(txt) ? 'saida' : 'entrada';
+        if (/\b(n[aã]o|sem)\b/.test(txt) && /\bbenef[ií]cio\b/.test(txt)) operacao = 'saida';
+        const desc = input.value.replace(num[0], '').replace(/\b(vr|va|combust[ií]vel|gasolina|vale|benef[ií]cio|recebi|gastei|usei|utilizei|paguei|abasteci|abastecimento|de|do|da|no|na|em|com)\b/gi, ' ').replace(/\s+/g,' ').trim() || (operacao === 'entrada' ? 'Crédito de benefício' : 'Uso de benefício');
+        beneficios.unshift({ id: Date.now(), tipo: beneficio, operacao, valor, descricao: desc, mes: mesAtualGlobal, ano: anoAtualGlobal, dia: new Date().getDate() });
+        salvarBeneficios();
+        input.value = '';
+        navegarPara('beneficios');
+        return;
+    }
+
+    // Saldo/Ajuste é uma conciliação, não uma saída.
+    // "saldo +100" aumenta R$100; "saldo -100" reduz R$100.
+    let tipo = 'saida';
+    const ehAjuste = /\b(saldo|ajuste|ajustar|acerto|acertar)\b/.test(txt);
+    const valorComSinal = txt.match(/(?:saldo|ajuste|ajustar|acerto|acertar)\s*([+-])\s*\d+[.,]?\d*/i);
+
+    if (ehAjuste) {
+        tipo = 'ajuste';
+        valor = valorComSinal && valorComSinal[1] === '-' ? -Math.abs(valor) : Math.abs(valor);
+    } else if (/\b(reserva|guardar)\b/.test(txt)) tipo = 'reserva';
+    else if (/\b(cartao|cartão|credito)\b/.test(txt)) tipo = 'cartao';
+    else if (/\b(recebi|ganhei|salario|salário|pix|deposito|depósito|renda)\b/.test(txt)) tipo = 'entrada';
+
+    let conta = "", cartao = "";
+    if(txt.includes('nubank')) { if(tipo==='cartao') cartao = "Nubank"; else conta = "Nubank"; }
+    if(txt.includes('itau')) { if(tipo==='cartao') cartao = "Itaú"; else conta = "Itaú"; }
+    if(txt.includes('inter')) { if(tipo==='cartao') cartao = "Inter"; else conta = "Inter"; }
+    if(txt.includes('mp')) { if(tipo==='cartao') cartao = "Mercado Pago"; else conta = "Mercado Pago"; }
+
+    let desc = input.value.replace(num[0], '').replace(/\b\d{1,2}\s*x\b/gi, '').replace(/no|na|do|da/gi, '').trim() || "Lançamento";
+    const novoId = Date.now();
+    transacoes.unshift({ id: novoId, descricao: desc, valor: valor, tipo, conta, cartao, mes: mesAtualGlobal, ano: anoAtualGlobal, dia: new Date().getDate() });
+    if (tipo === 'ajuste') {
+        idPendente = novoId;
+        tipoPendente = tipo;
+        mostrarPerguntaConta(novoId, tipo);
+        input.value = '';
+        return;
+    }
+    // Cartão sempre passa pelo fluxo de cartão -> parcelas. Se o cartão já foi informado no texto, pulamos apenas a pergunta do cartão.
+    if(tipo === 'cartao') {
+        idPendente = novoId; tipoPendente = tipo;
+        if(cartao) mostrarPerguntaParcelas(novoId);
+        else mostrarPerguntaConta(novoId, tipo);
+    }
+    else if((tipo === 'saida' || tipo === 'reserva') && !cartao && !conta){ idPendente = novoId; tipoPendente = tipo; mostrarPerguntaConta(novoId, tipo); }
+    else if(tipo === 'entrada' && !conta){ idPendente = novoId; tipoPendente = tipo; mostrarPerguntaConta(novoId, tipo); }
+    else salvarTudo();
+    input.value = '';
+}
+
+function fecharModalRecorrencia(){ document.getElementById('modal-recorrencia').style.display='none'; idRecorrenciaPendente=null; salvarTudo(); }
+function responderRecorrencia(sim){
+    const t=transacoes.find(i=>i.id==idRecorrenciaPendente);
+    document.getElementById('modal-recorrencia').style.display='none';
+    if(t && sim){
+        recorrencias=recorrencias.filter(r=>r.id!==t.id);
+        recorrencias.push({id:t.id,descricao:t.descricao,valor:t.valor,tipo:t.tipo,conta:t.conta||'',cartao:t.cartao||'',dia:t.dia||1,mesInicio:t.mes,anoInicio:t.ano,ativa:true});
+    }
+    idRecorrenciaPendente=null;
+    salvarTudo();
+}
+function aplicarRecorrencias(){
+    let mudou=false;
+    recorrencias.filter(r=>r.ativa!==false).forEach(r=>{
+        const inicio=(Number(r.anoInicio)*12)+Number(r.mesInicio);
+        const atual=(Number(anoAtualGlobal)*12)+Number(mesAtualGlobal);
+        if(atual<inicio) return;
+        const existe=transacoes.some(t=>t.recorrenciaId===r.id && Number(t.ano)===Number(anoAtualGlobal) && Number(t.mes)===Number(mesAtualGlobal));
+        if(!existe){
+            const dia=Math.min(Number(r.dia)||1,new Date(anoAtualGlobal,mesAtualGlobal+1,0).getDate());
+            transacoes.unshift({id:Date.now()+Math.random(),recorrenciaId:r.id,descricao:r.descricao,valor:Number(r.valor),tipo:r.tipo,conta:r.conta||'',cartao:r.cartao||'',mes:mesAtualGlobal,ano:anoAtualGlobal,dia});
+            mudou=true;
+        }
+    });
+    if(mudou) localStorage.setItem('saldo_transacoes',JSON.stringify(transacoes));
+}
+function alternarVisaoFinanceira(botao){
+    const el=document.getElementById('visao-financeira-opcional');
+    if(!el) return;
+    const aberta=el.style.display!=='none';
+    el.style.display=aberta?'none':'block';
+    if(botao) botao.innerText=aberta?'📊 Ver visão financeira':'📊 Ocultar visão financeira';
+}
+
+function atualizarStatusFinanceiro(saldo,res){
+    const el=document.getElementById('status-saldo'); if(el) el.innerText=`R$ ${saldo.toFixed(2)}`;
+    const er=document.getElementById('status-reserva'); if(er) er.innerText=`R$ ${res.toFixed(2)}`;
+    const ep=document.getElementById('status-patrimonio'); if(ep) ep.innerText=`R$ ${(saldo+res).toFixed(2)}`;
+    const ec=document.getElementById('status-recorrentes'); if(ec) ec.innerText=recorrencias.filter(r=>r.ativa!==false).length;
+    const lr=document.getElementById('lista-recorrentes-status'); if(lr){ const at=recorrencias.filter(r=>r.ativa!==false); lr.innerHTML=at.length?'<div class="linha-2" style="margin-bottom:6px;">Contas recorrentes</div>'+at.map(r=>`<div class="item-recorrente"><span>${r.descricao}</span><strong>R$ ${Number(r.valor).toFixed(2)}</strong></div>`).join(''):'<div class="linha-2">Nenhuma conta recorrente cadastrada.</div>'; }
+}
+
+function salvarBeneficios() { localStorage.setItem('saldo_beneficios', JSON.stringify(beneficios)); atualizarBeneficios(); }
+function dataLancamento(x) { return new Date(Number(x.ano), Number(x.mes), Number(x.dia || 1)); }
+function periodoSelecionado(id) {
+    const v = document.getElementById(id).value; if (!v) return null;
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    if (v === 'hoje') return [hoje, hoje];
+    if (v === '7dias') { const ini=new Date(hoje); ini.setDate(ini.getDate()-6); return [ini, hoje]; }
+    if (v === 'mes') return [new Date(hoje.getFullYear(),hoje.getMonth(),1), new Date(hoje.getFullYear(),hoje.getMonth()+1,0)];
+    if (v === 'mesAnterior') return [new Date(hoje.getFullYear(),hoje.getMonth()-1,1), new Date(hoje.getFullYear(),hoje.getMonth(),0)];
+    const ini=document.getElementById(id.includes('beneficios')?'data-inicio-beneficios':'data-inicio-despesas').value;
+    const fim=document.getElementById(id.includes('beneficios')?'data-fim-beneficios':'data-fim-despesas').value;
+    return ini && fim ? [new Date(ini+'T00:00:00'), new Date(fim+'T23:59:59')] : null;
+}
+function obterBeneficiosFiltrados() { const p=periodoSelecionado('filtro-periodo-beneficios'); return p ? beneficios.filter(b=>{const d=dataLancamento(b); return d>=p[0]&&d<=p[1];}) : []; }
+function alternarHistorico(tipo) {
+    const painel = document.getElementById(`painel-historico-${tipo}`);
+    const seta = document.getElementById(`seta-historico-${tipo}`);
+    const aberto = painel.style.display !== 'none';
+    painel.style.display = aberto ? 'none' : 'block';
+    seta.innerText = aberto ? '▸' : '▾';
+
+    // Ao abrir o histórico, aplica imediatamente o período padrão (Este mês).
+    // Não depende de o usuário alterar o seletor para disparar o filtro.
+    if (!aberto) {
+        const filtro = document.getElementById(`filtro-periodo-${tipo}`);
+        if (filtro && !filtro.value) filtro.value = 'mes';
+        if (tipo === 'despesas') atualizarAplicativo();
+        if (tipo === 'beneficios') atualizarBeneficios();
+    }
+}
+function selecionarBeneficio(tipo) {
+    const filtro = document.getElementById('filtro-beneficio');
+    const detalhe = document.getElementById('detalhe-beneficio');
+    document.querySelectorAll('.beneficio-card.clicavel').forEach(c => c.classList.toggle('selecionado', c.dataset.beneficio === tipo));
+    if (tipo === 'todos') { filtro.value = 'todos'; detalhe.style.display = 'none'; }
+    else {
+        filtro.value = tipo; detalhe.style.display = 'block';
+        document.getElementById('titulo-detalhe-beneficio').innerText = `Detalhes — ${tipo}`;
+        const t = calcularTotaisBeneficio(tipo);
+        document.getElementById('subtitulo-detalhe-beneficio').innerText = `Saldo R$ ${formatarMoeda(t[0]-t[1])} · Recebido R$ ${formatarMoeda(t[0])} · Utilizado R$ ${formatarMoeda(t[1])}`;
+    }
+    atualizarBeneficios();
+}
+function calcularTotaisBeneficio(tipo) {
+    const totais=[0,0];
+    const p=periodoSelecionado('filtro-periodo-beneficios');
+    const base=p ? obterBeneficiosFiltrados() : beneficios.filter(b => b.mes === mesAtualGlobal && b.ano === anoAtualGlobal);
+    base.filter(b=>b.tipo===tipo).forEach(b=>{ totais[b.operacao==='entrada'?0:1]+=Number(b.valor)||0; });
+    return totais;
+}
+function formatarMoeda(v) { return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function atualizarBeneficios() {
+    const sel=document.getElementById('filtro-periodo-beneficios'); const datas=document.getElementById('datas-personalizadas-beneficios'); datas.style.display=sel.value==='personalizado'?'grid':'none';
+    const lista = obterBeneficiosFiltrados();
+    const resumo = beneficios.filter(b => b.mes === mesAtualGlobal && b.ano === anoAtualGlobal);
+    const tipos = ['VR','VA','Combustível','Outros'];
+    const totais = { 'VR': [0,0], 'VA': [0,0], 'Combustível': [0,0], 'Outros': [0,0] };
+    resumo.forEach(b => { const i=b.operacao==='entrada'?0:1; if(totais[b.tipo]) totais[b.tipo][i]+=Number(b.valor)||0; });
+    tipos.forEach(tipo => {
+        const [rec,uso]=totais[tipo];
+        document.getElementById(`saldo-${tipo}`).innerText=`R$ ${formatarMoeda(rec-uso)}`;
+        document.getElementById(`recebido-${tipo}`).innerText=`R$ ${formatarMoeda(rec)}`;
+        document.getElementById(`utilizado-${tipo}`).innerText=`R$ ${formatarMoeda(uso)}`;
+    });
+    atualizarBloqueioValores();
+    const filtro=document.getElementById('filtro-beneficio').value;
+    const filtradas=lista.filter(b=>filtro==='todos'||b.tipo===filtro);
+    const l=document.getElementById('lista-beneficios'); l.innerHTML='';
+    if(!filtradas.length){ l.innerHTML='<div style="text-align:center;color:var(--texto-secundario);padding:20px;">Nenhum lançamento de benefício neste período.</div>'; return; }
+    filtradas.forEach(b=>{ l.innerHTML += `<div class="item-transacao" style="cursor:pointer;" onclick="abrirModalEditarBeneficio(${b.id})">
+        <div class="linha-1"><span>${b.descricao} <span class="badge-beneficio">${b.tipo}</span></span><span class="${b.operacao==='entrada'?'cor-entrada':'cor-saida'}">${b.operacao==='entrada'?'+':'-'} R$ ${b.valor.toFixed(2)}</span></div>
+        <div class="linha-2">${b.dia} ${nomesMeses[b.mes]}/${b.ano}</div>
+    </div>`; });
+}
+function abrirModalNovoBeneficio(op){ document.getElementById('beneficio-id').value=''; document.getElementById('btn-excluir-beneficio-modal').style.display='none'; document.getElementById('beneficio-operacao').value=op; document.getElementById('titulo-modal-beneficio').innerText=op==='entrada'?'Receber Benefício':'Utilizar Benefício'; document.getElementById('beneficio-valor').value=''; document.getElementById('beneficio-desc').value=''; document.getElementById('modal-beneficio').style.display='flex'; }
+function abrirModalEditarBeneficio(id){ const b=beneficios.find(x=>x.id==id); if(!b)return; document.getElementById('btn-excluir-beneficio-modal').style.display='block'; document.getElementById('beneficio-id').value=b.id; document.getElementById('beneficio-operacao').value=b.operacao; document.getElementById('titulo-modal-beneficio').innerText='Editar Benefício'; document.getElementById('beneficio-tipo').value=b.tipo; document.getElementById('beneficio-valor').value=b.valor; document.getElementById('beneficio-desc').value=b.descricao; document.getElementById('modal-beneficio').style.display='flex'; }
+function fecharModalBeneficio(){document.getElementById('modal-beneficio').style.display='none';}
+function salvarBeneficioModal(){ const id=document.getElementById('beneficio-id').value; const op=document.getElementById('beneficio-operacao').value; const tipo=document.getElementById('beneficio-tipo').value; const valor=parseFloat(document.getElementById('beneficio-valor').value)||0; if(valor<=0)return alert('Informe um valor válido.'); const desc=document.getElementById('beneficio-desc').value|| (op==='entrada'?'Crédito de benefício':'Uso de benefício'); if(id){const b=beneficios.find(x=>x.id==id); if(b){b.tipo=tipo;b.operacao=op;b.valor=valor;b.descricao=desc;}} else beneficios.unshift({id:Date.now(),tipo,operacao:op,valor,descricao:desc,mes:mesAtualGlobal,ano:anoAtualGlobal,dia:new Date().getDate()}); fecharModalBeneficio(); salvarBeneficios();}
+function excluirBeneficio(id){ if(confirm('Excluir este benefício?')){beneficios=beneficios.filter(b=>b.id!=id);salvarBeneficios();} }
+function excluirBeneficioModal(){ const id=document.getElementById('beneficio-id').value; if(id) { excluirBeneficio(id); fecharModalBeneficio(); } }
+
+function mostrarPerguntaConta(id, tipo) {
+    const modal = document.getElementById('modal-pergunta');
+    let texto = "";
+    if(tipo === 'cartao'){ texto = "Em qual cartão foi essa compra?"; }
+    else if(tipo === 'reserva'){ texto = "Transferir de qual conta pra Reserva?"; }
+    else if(tipo === 'entrada'){ texto = "Em qual conta você recebeu?"; }
+    else if(tipo === 'ajuste'){ texto = "Em qual conta está esse saldo?"; }
+    else { texto = "De qual conta saiu esse dinheiro?"; }
+
+    document.getElementById('texto-pergunta').innerText = texto;
+    document.getElementById('botoes-pergunta').innerHTML = `
+        <button class="btn-resposta" onclick="responderConta('${id}','Nubank')">Nubank</button>
+        <button class="btn-resposta" onclick="responderConta('${id}','Itaú')">Itaú</button>
+        <button class="btn-resposta" onclick="responderConta('${id}','Inter')">Inter</button>
+         <button class="btn-resposta" onclick="responderConta('${id}','Mercado Pago')">MP</button>
+          <button class="btn-resposta" onclick="responderConta('${id}','Bradesco')">Bradesco</button>
+           <button class="btn-resposta" onclick="responderConta('${id}','Pic Pay')">Pic Pay</button>
+        <button class="btn-resposta" onclick="responderConta('${id}','Dinheiro')">Dinheiro</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function responderConta(id, valor) {
+    const t = transacoes.find(i => i.id == id);
+    if(t) {
+        if(tipoPendente === 'cartao') {
+            t.cartao = valor;
+            document.getElementById('modal-pergunta').style.display = 'none';
+            mostrarPerguntaParcelas(id);
+            return;
+        }
+        t.conta = valor;
+    }
+    document.getElementById('modal-pergunta').style.display = 'none';
+    if(tipoPendente === 'saida' || tipoPendente === 'entrada') {
+        idRecorrenciaPendente = id;
+        document.getElementById('modal-recorrencia').style.display = 'flex';
+        return;
+    }
+    salvarTudo();
+}
+
+function mostrarPerguntaParcelas(id) {
+    idPendente = id; aguardandoParcelas = true;
+    const modal = document.getElementById('modal-pergunta');
+    document.getElementById('texto-pergunta').innerText = 'Em quantas vezes foi essa compra?';
+    let html = '';
+    for(let i=1;i<=24;i++) html += `<button class="btn-resposta" onclick="responderParcelas('${id}',${i})">${i}x</button>`;
+    document.getElementById('botoes-pergunta').innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function responderParcelas(id, quantidade) {
+    const t = transacoes.find(i => i.id == id);
+    if(!t) return;
+    document.getElementById('modal-pergunta').style.display = 'none';
+    aguardandoParcelas = false;
+
+    if(quantidade <= 1) {
+        t.parcela = 1; t.totalParcelas = 1; t.compraParceladaId = null;
+        salvarTudo();
+        return;
+    }
+
+    const totalCentavos = Math.round(Number(t.valor) * 100);
+    const baseCentavos = Math.floor(totalCentavos / quantidade);
+    const resto = totalCentavos - (baseCentavos * quantidade);
+    const compraId = `parc-${Date.now()}`;
+    const dataBase = new Date(Number(t.ano), Number(t.mes), Number(t.dia || 1));
+    const parcelas = [];
+
+    // Remove o lançamento original e substitui pelas parcelas vinculadas.
+    transacoes = transacoes.filter(i => i.id != id);
+    for(let i=1;i<=quantidade;i++) {
+        const d = new Date(dataBase.getFullYear(), dataBase.getMonth() + (i-1), dataBase.getDate());
+        // Se o dia não existir no mês (ex.: 31), usa o último dia daquele mês.
+        if(d.getMonth() !== ((dataBase.getMonth() + (i-1)) % 12 + 12) % 12) {
+            d.setDate(0);
+        }
+        const centavos = baseCentavos + (i <= resto ? 1 : 0);
+        parcelas.push({
+            id: `${compraId}-${i}`,
+            compraParceladaId: compraId,
+            parcela: i,
+            totalParcelas: quantidade,
+            descricao: `${t.descricao} (${i}/${quantidade})`,
+            valor: centavos / 100,
+            tipo: 'cartao',
+            conta: '',
+            cartao: t.cartao || '',
+            mes: d.getMonth(),
+            ano: d.getFullYear(),
+            dia: d.getDate()
+        });
+    }
+    transacoes = parcelas.concat(transacoes);
+    salvarTudo();
+}
+
+function salvarTudo() { localStorage.setItem('saldo_transacoes', JSON.stringify(transacoes)); localStorage.setItem('saldo_recorrencias', JSON.stringify(recorrencias)); atualizarAplicativo(); }
+
+function obterTransacoesFiltradas() {
+    return transacoes.filter(t => t.mes === mesAtualGlobal && t.ano === anoAtualGlobal);
+}
+
+function atualizarAplicativo() {
+    aplicarRecorrencias();
+    atualizarLabelTopo();
+    const transacoesFiltradas = obterTransacoesFiltradas();
+
+    let ent = 0, sai = 0, car = 0, res = 0;
+    transacoesFiltradas.forEach(t => {
+        if(t.tipo === 'entrada') ent += t.valor;
+        else if(t.tipo === 'saida') sai += t.valor;
+        else if(t.tipo === 'cartao') car += t.valor;
+        else if(t.tipo === 'reserva') res += t.valor;
+        else if(t.tipo === 'ajuste') ent += t.valor;
+    });
+    const saldo = ent - sai - car - res; const gastos = sai + car;
+    document.getElementById('card-entradas').innerText = ent.toFixed(2);
+    document.getElementById('card-saidas').innerText = sai.toFixed(2);
+    document.getElementById('card-cartao').innerText = car.toFixed(2);
+    document.getElementById('card-saldo').innerText = `R$ ${saldo.toFixed(2)}`;
+    atualizarStatusFinanceiro(saldo,res);
+    document.getElementById('previsao-valor').innerText = `R$ ${(gastos / 30).toFixed(2)}`;
+    renderizarHistorico(transacoesFiltradas); 
+    renderizarGraficos(ent, gastos, sai, car, res);
+    atualizarBeneficios();
+}
+
+function renderizarHistorico(listaTransacoes) {
+    const tipoFiltro = document.getElementById('filtro-tipo').value;
+    const l = document.getElementById('lista-transacoes-container'); 
+    l.innerHTML = '';
+    
+    const p=periodoSelecionado('filtro-periodo-despesas');
+    document.getElementById('datas-personalizadas-despesas').style.display=document.getElementById('filtro-periodo-despesas').value==='personalizado'?'grid':'none';
+    const porPeriodo=p ? listaTransacoes.filter(t=>{const d=dataLancamento(t); return d>=p[0]&&d<=p[1];}) : [];
+    const filtradas = porPeriodo.filter(t => tipoFiltro === 'todos' || t.tipo === tipoFiltro);
+
+    if (filtradas.length === 0) {
+        l.innerHTML = `<div style="text-align:center; color: var(--texto-secundario); padding: 20px;">Nenhuma transação neste período.</div>`;
+        return;
+    }
+
+    filtradas.forEach(t => {
+        let cls = t.tipo === 'entrada' ? 'cor-entrada' : t.tipo === 'cartao' ? 'cor-cartao' : t.tipo === 'reserva' ? 'cor-reserva' : t.tipo === 'ajuste' ? (t.valor >= 0 ? 'cor-entrada' : 'cor-saida') : 'cor-saida';
+        let origem = t.cartao || t.conta || '';
+        const parcelaInfo = t.totalParcelas > 1 ? ` · ${t.parcela}/${t.totalParcelas}` : '';
+        const sinal = t.tipo === 'entrada' ? '+' : t.tipo === 'ajuste' ? (t.valor >= 0 ? '+' : '-') : '-';
+        const valorExibicao = Math.abs(Number(t.valor) || 0);
+        const rotuloAjuste = t.tipo === 'ajuste' ? ' · Ajuste' : '';
+        l.innerHTML += `<div class="item-transacao" style="cursor:pointer;" onclick="abrirModalEditar('${String(t.id).replace(/'/g, "\'")}')">
+            <div class="linha-1"><span>${t.descricao}${rotuloAjuste}</span><span class="${cls}">${sinal} R$ ${valorExibicao.toFixed(2)}</span></div>
+            <div class="linha-2">${t.dia} ${nomesMeses[t.mes]}/${t.ano}${parcelaInfo}${origem ? ' - ' + origem : ''}</div>
+        </div>`;
+    });
+}
+
+function abrirModalEditar(id) {
+    const t = transacoes.find(i => i.id == id);
+    if(!t) return;
+    document.getElementById('edit-id').value = t.id;
+    document.getElementById('edit-desc').value = t.descricao;
+    document.getElementById('edit-valor').value = t.valor;
+    document.getElementById('edit-tipo').value = t.tipo;
+    document.getElementById('edit-origem').value = t.cartao || t.conta || '';
+    document.getElementById('modal-editar').style.display = 'flex';
+}
+
+function fecharModalEditar() {
+    document.getElementById('modal-editar').style.display = 'none';
+}
+
+function salvarEdicaoModal() {
+    const id = document.getElementById('edit-id').value;
+    const t = transacoes.find(i => i.id == id);
+    if(t) {
+        t.descricao = document.getElementById('edit-desc').value || "Lançamento";
+        let valorEditado = parseFloat(document.getElementById('edit-valor').value) || 0;
+        t.tipo = document.getElementById('edit-tipo').value;
+        t.valor = t.tipo === 'ajuste' ? valorEditado : Math.abs(valorEditado);
+        const origemVal = document.getElementById('edit-origem').value;
+        if(t.tipo === 'cartao') {
+            t.cartao = origemVal;
+            t.conta = "";
+        } else {
+            t.conta = origemVal;
+            t.cartao = "";
+        }
+    }
+    fecharModalEditar();
+    salvarTudo();
+}
+
+function excluirTransacaoRapido(id) {
+    const t = transacoes.find(i => i.id == id);
+    if (!t) return;
+    let mensagem = 'Deseja realmente excluir esta transação?';
+    if (t.compraParceladaId && t.totalParcelas > 1) {
+        mensagem = `Excluir somente a parcela ${t.parcela}/${t.totalParcelas}?\n\nPara excluir a compra inteira, abra a edição da parcela e confirme a exclusão em seguida.`;
+    }
+    if (confirm(mensagem)) {
+        transacoes = transacoes.filter(i => i.id != id);
+        salvarTudo();
+    }
+}
+
+function excluirTransacaoModal() {
+    if(confirm("Deseja realmente excluir esta transação?")) {
+        const id = document.getElementById('edit-id').value;
+        transacoes = transacoes.filter(i => i.id != id);
+        fecharModalEditar();
+        salvarTudo();
+    }
+}
+
+function renderizarGraficos(receitas, totalGastos, saídas, cartões, valorReserva) {
+    const maxEixoV = Math.max(saídas, cartões, valorReserva, 100);
+    document.getElementById('v-val-contas').innerText = `R$ ${saídas.toFixed(2)}`;
+    document.getElementById('v-val-cartoes').innerText = `R$ ${cartões.toFixed(2)}`;
+    document.getElementById('v-val-reserva').innerText = `R$ ${valorReserva.toFixed(2)}`;
+    document.getElementById('v-bar-contas').style.height = `${Math.max((saídas / maxEixoV) * 100, 5)}%`;
+    document.getElementById('v-bar-cartoes').style.height = `${Math.max((cartões / maxEixoV) * 100, 5)}%`;
+    document.getElementById('v-bar-reserva').style.height = `${Math.max((valorReserva / maxEixoV) * 100, 5)}%`;
+
+    const totalFluxo = receitas + totalGastos; const percGasto = totalFluxo > 0 ? Math.round((totalGastos / totalFluxo) * 100) : 0;
+    document.getElementById('pizza-perc').innerText = `${percGasto}%`;
+    document.getElementById('grafico-pizza-elemento').style.background = `conic-gradient(var(--saida) 0% ${percGasto}%, var(--entrada) ${percGasto}% 100%)`;
+}
+
+function atualizarBloqueioValores() {
+    const idsValores = [
+        'card-entradas', 'card-saidas', 'card-cartao', 'card-reserva',
+        'card-saldo', 'previsao-valor',
+        'v-val-contas', 'v-val-cartoes', 'v-val-reserva',
+        'saldo-VR', 'recebido-VR', 'utilizado-VR',
+        'saldo-VA', 'recebido-VA', 'utilizado-VA',
+        'saldo-Combustível', 'recebido-Combustível', 'utilizado-Combustível',
+        'saldo-Outros', 'recebido-Outros', 'utilizado-Outros'
+    ];
+
+    idsValores.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('valor-oculto', saldosOcultos);
+    });
+
+    const botao = document.querySelector('.app-header .icon-btn');
+    if (botao) botao.innerText = saldosOcultos ? '🔒' : '🔓';
+}
+
+function alternarVisibilidade() {
+    saldosOcultos = !saldosOcultos;
+    atualizarBloqueioValores();
+}
+function alternarTema() { 
+    temaAtualIndex = (temaAtualIndex + 1) % temasDisponiveis.length; 
+    document.body.className = temaAtualIndex === 0 ? '' : `theme-${temasDisponiveis[temaAtualIndex]}`; 
+}
+
+function resetarAplicativoTotal() { 
+    if (confirm("Limpar tudo?")) { 
+        transacoes = []; beneficios = [];
+        salvarTudo(); salvarBeneficios(); 
+    } 
+}
+
+function exportarBackup() { 
+    const dl = document.createElement('a'); 
+    dl.href = "data:text/json," + encodeURIComponent(JSON.stringify({ versao: 2, transacoes, beneficios })); 
+    dl.download = `backup.json`; 
+    dl.click(); 
+}
+
+function importarBackup(e) { 
+    const r = new FileReader(); 
+    r.onload = ev => { 
+        const dados = JSON.parse(ev.target.result);
+        if (Array.isArray(dados)) { transacoes = dados; beneficios = []; } else { transacoes = dados.transacoes || []; beneficios = dados.beneficios || []; }
+        salvarTudo(); salvarBeneficios(); 
+    }; 
+    r.readAsText(e.target.files[0]); 
+}
+
+
+// ===== RETORNO / ESC / BOTÃO VOLTAR =====
+let historicoNavegacao = ['inicio'];
+
+function modalAberto() {
+    return Array.from(document.querySelectorAll('.modal-overlay'))
+        .find(m => getComputedStyle(m).display !== 'none');
+}
+
+function cancelarPergunta() {
+    const id = idPendente;
+    if (id !== null) {
+        transacoes = transacoes.filter(i => i.id != id);
+        localStorage.setItem('saldo_transacoes', JSON.stringify(transacoes));
+    }
+    idPendente = null;
+    tipoPendente = null;
+    aguardandoParcelas = false;
+    document.getElementById('modal-pergunta').style.display = 'none';
+    atualizarAplicativo();
+}
+
+function fecharModalAtual() {
+    const modal = modalAberto();
+    if (!modal) return false;
+    if (modal.id === 'modal-pergunta') cancelarPergunta();
+    else if (modal.id === 'modal-seletor-mes') fecharModalSeletorMes();
+    else if (modal.id === 'modal-beneficio') fecharModalBeneficio();
+    else if (modal.id === 'modal-recorrencia') fecharModalRecorrencia();
+    else if (modal.id === 'modal-editar') fecharModalEditar();
+    else modal.style.display = 'none';
+    return true;
+}
+
+const navegarParaBase = navegarPara;
+let navegacaoInterna = false;
+
+navegarPara = function(idAba) {
+    const atual = historicoNavegacao[historicoNavegacao.length - 1];
+    if (!navegacaoInterna && atual !== idAba) {
+        historicoNavegacao.push(idAba);
+        history.pushState({ aba: idAba }, '', '#' + idAba);
+    }
+    navegarParaBase(idAba);
+};
+
+window.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    if (fecharModalAtual()) {
+        e.preventDefault();
+        return;
+    }
+    if (historicoNavegacao.length > 1) {
+        history.back();
+        e.preventDefault();
+    }
+});
+
+window.addEventListener('popstate', function() {
+    if (fecharModalAtual()) return;
+
+    if (historicoNavegacao.length > 1) {
+        historicoNavegacao.pop();
+        const anterior = historicoNavegacao[historicoNavegacao.length - 1] || 'inicio';
+        navegacaoInterna = true;
+        navegarParaBase(anterior);
+        navegacaoInterna = false;
+    } else {
+        // Evita que um toque acidental volte para fora do aplicativo.
+        history.pushState({ aba: 'inicio' }, '', '#inicio');
+    }
+});
+
+if (!location.hash) {
+    history.replaceState({ aba: 'inicio' }, '', '#inicio');
+}
+
+function inicializarFiltrosHistorico() {
+    const fd = document.getElementById('filtro-periodo-despesas');
+    const fb = document.getElementById('filtro-periodo-beneficios');
+    if (fd) fd.value = 'mes';
+    if (fb) fb.value = 'mes';
+}
+
+window.onload = () => {
+    inicializarFiltrosHistorico(); 
+
+    const s = localStorage.getItem('saldo_transacoes'); 
+    if (s) transacoes = JSON.parse(s); 
+
+    const r = localStorage.getItem('saldo_recorrencias'); if (r) recorrencias = JSON.parse(r);
+
+    const b = localStorage.getItem('saldo_beneficios'); 
+    if (b) beneficios = JSON.parse(b);
+
+    atualizarAplicativo(); 
+};
+</script>
+</body>
+</html>
