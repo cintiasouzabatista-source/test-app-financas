@@ -1,1 +1,411 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nós Dois: Psicologia e Entendimento do Casal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 min-h-screen text-slate-800">
+
+    <div id="app" class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- CABEÇALHO -->
+        <header class="text-center mb-8 bg-white/80 backdrop-blur rounded-2xl p-6 shadow-sm border border-rose-100">
+            <span class="text-xs font-semibold tracking-widest uppercase text-rose-500 bg-rose-50 px-3 py-1 rounded-full">Psicologia de Casais</span>
+            <h1 class="text-3xl font-bold text-slate-900 mt-2">Nós Dois: Expectativas e Futuro</h1>
+            <p class="text-slate-600 mt-2 max-w-xl mx-auto text-sm">
+                Uma ferramenta interativa baseada no questionário original para alinhar expectativas, realidade e visão de futuro sem julgamentos. Responda com sinceridade.
+            </p>
+            <div id="progress-container" class="mt-4 flex items-center justify-center gap-2">
+                <span id="progress-text" class="text-xs font-medium text-slate-500">Módulo 1 de 8</span>
+            </div>
+        </header>
+
+        <!-- SELETOR DE PERFIL (PESSOA A / PESSOA B) -->
+        <div id="profile-selector" class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 mb-6 text-center">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Quem está respondendo agora?</h2>
+            <p class="text-xs text-slate-500 mb-4">Recomendamos que cada um responda no seu próprio ritmo e depois comparem os resultados.</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="setProfile('Parceiro(a) 1')" id="btn-p1" class="px-6 py-3 rounded-xl border border-rose-200 font-medium text-rose-600 hover:bg-rose-50 transition shadow-sm">
+                    👤 Parceiro(a) 1
+                </button>
+                <button onclick="setProfile('Parceiro(a) 2')" id="btn-p2" class="px-6 py-3 rounded-xl border border-rose-200 font-medium text-rose-600 hover:bg-rose-50 transition shadow-sm">
+                    👤 Parceiro(a) 2
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTAINER DO QUIZ -->
+        <div id="quiz-container" class="hidden">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-md border border-slate-100 mb-6">
+                
+                <div class="flex justify-between items-center mb-4">
+                    <span id="category-badge" class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-md">Tema</span>
+                    <span id="question-counter" class="text-xs font-semibold text-slate-400">Pergunta 1 de 31</span>
+                </div>
+
+                <h3 id="question-title" class="text-xl font-bold text-slate-900 mb-4">Título da Pergunta</h3>
+                <p id="psych-note" class="text-xs italic text-amber-700 bg-amber-50 p-3 rounded-lg mb-6 border border-amber-100 flex items-center gap-2">
+                    💡 <span id="psych-text">Nota psicológica</span>
+                </p>
+
+                <!-- ÁREA DE RESPOSTA (DINÂMICA: TEXTO OU OPÇÕES) -->
+                <div id="answer-area" class="space-y-4">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+
+                <!-- BOTÕES DE NAVEGAÇÃO -->
+                <div class="flex justify-between items-center mt-8 pt-4 border-t border-slate-100">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition disabled:opacity-30">
+                        ← Anterior
+                    </button>
+                    <button onclick="nextQuestion()" id="btn-next" class="px-6 py-2.5 bg-rose-600 text-white font-medium text-sm rounded-xl shadow-md hover:bg-rose-700 transition">
+                        Próxima →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DE RESUMO E COMPARAÇÃO -->
+        <div id="summary-container" class="hidden bg-white rounded-2xl p-6 md:p-8 shadow-md border border-slate-100">
+            <div class="text-center mb-6">
+                <span class="text-3xl">🎉</span>
+                <h2 class="text-2xl font-bold text-slate-900 mt-2">Questionário Concluído!</h2>
+                <p class="text-sm text-slate-600 mt-1">Parabéns por investirem tempo no autoconhecimento do casal.</p>
+            </div>
+
+            <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 mb-6 text-xs text-rose-800 leading-relaxed">
+                <strong>Regra de ouro para a conversa de comparação:</strong> Primeiro ouvir para entender. Evitem interromper, ironizar, rotular ou tentar rebater imediatamente a resposta do outro. Usem a frase de partida sugerida pela psicologia: <em>"Eu não quero usar esse questionário para provar que alguém está errado. Quero entender melhor como cada um enxerga nossa relação e o que cada um espera do futuro."</em>
+            </div>
+
+            <div id="user-responses-list" class="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2">
+                <!-- Respostas inseridas via JS -->
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="exportData()" class="px-5 py-2.5 bg-slate-800 text-white font-medium text-sm rounded-xl shadow hover:bg-slate-900 transition">
+                    📥 Baixar Respostas
+                </button>
+                <button onclick="resetApp()" class="px-5 py-2.5 border border-slate-300 text-slate-700 font-medium text-sm rounded-xl hover:bg-slate-50 transition">
+                    🔄 Reiniciar
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const questions = [
+            // 1. O que temos hoje
+            {
+                id: 1, category: "O que temos hoje", type: "text",
+                title: "O que você mais gosta na nossa relação?",
+                psych: "Identificar os pilares positivos fortalece a resiliência emocional do casal frente aos conflitos cotidianos."
+            },
+            {
+                id: 2, category: "O que temos hoje", type: "text",
+                title: "O que você mais admira no seu parceiro(a)?",
+                psych: "A admiração mútua é o principal antídoto contra o desprezo e o distanciamento afetivo, segundo estudos de psicologia relacional."
+            },
+            {
+                id: 3, category: "O que temos hoje", type: "text",
+                title: "O que você sente que seu parceiro(a) traz de bom para a sua vida?",
+                psych: "Avalia a reciprocidade e o impacto nutritivo da relação no bem-estar individual."
+            },
+            {
+                id: 4, category: "O que temos hoje", type: "choice",
+                title: "Existe algo importante que você sente falta hoje na relação?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Mapear lacunas atuais evita o acúmulo de ressentimentos silenciosos."
+            },
+            // 2. Nossa vida juntos
+            {
+                id: 5, category: "Nossa vida juntos", type: "text",
+                title: "Quando você imagina nós dois daqui a 5 anos, como gostaria que estivéssemos vivendo?",
+                psych: "Alinha as visões de longo prazo e verifica se os horizontes temporais estão sincronizados."
+            },
+            {
+                id: 6, category: "Nossa vida juntos", type: "choice",
+                title: "Você sente que estamos prontos ou gostaríamos de morar junto algum dia?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "O passo de morar junto exige maturidade e clareza sobre marcos de preparação pessoal e financeira."
+            },
+            {
+                id: 7, category: "Nossa vida juntos", type: "text",
+                title: "Como seria, para você, uma rotina de casal que trouxesse satisfação?",
+                psych: "Conecta a expectativa de convivência diária com as necessidades reais de espaço e conexão."
+            },
+            {
+                id: 8, category: "Nossa vida juntos", type: "text",
+                title: "O que significa, para você, 'construir uma vida juntos'?",
+                psych: "Define valores fundamentais de parceria e projeto de vida compartilhado."
+            },
+            // 3. Iniciativa, passeios e experiências
+            {
+                id: 9, category: "Iniciativa e Passeios", type: "choice",
+                title: "A divisão de iniciativa para marcar passeios, viagens ou momentos especiais é equilibrada?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Desigualdade na carga mental de planejamento costuma gerar desgaste e sensação de sobrecarga."
+            },
+            {
+                id: 10, category: "Iniciativa e Passeios", type: "text",
+                title: "Você gostaria que seu parceiro(a) tomasse mais iniciativa? Em quais situações?",
+                psych: "Permite expressar desejos de proatividade sem cair em cobranças generalizadas."
+            },
+            {
+                id: 11, category: "Iniciativa e Passeios", type: "text",
+                title: "Quais experiências você gostaria de viver mais como casal?",
+                psych: "Estimula o investimento em novidade e vivências lúdicas, cruciais para a vitalidade da relação."
+            },
+            {
+                id: 12, category: "Iniciativa e Passeios", type: "choice",
+                title: "Existe alguma responsabilidade ou tarefa que sempre acaba ficando por conta de uma pessoa só?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Identifica assimetrias na divisão de papéis práticos do dia a dia."
+            },
+            // 4. Dinheiro e estilo de vida
+            {
+                id: 13, category: "Dinheiro e Estilo de Vida", type: "text",
+                title: "O que significa ter estabilidade financeira para você?",
+                psych: "A relação com o dinheiro envolve forte carga emocional, segurança e crenças internalizadas."
+            },
+            {
+                id: 14, category: "Dinheiro e Estilo de Vida", type: "choice",
+                title: "Você visualiza uma divisão de despesas justa e clara caso morassem juntos?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "O alinhamento financeiro preventivo previne um dos maiores focos de conflito em casais."
+            },
+            {
+                id: 15, category: "Dinheiro e Estilo de Vida", type: "text",
+                title: "Para você, é mais importante economizar, aproveitar o presente ou encontrar um equilíbrio? Explique.",
+                psych: "Mapeia perfis comportamentais frente ao consumo, poupança e gratificação imediata."
+            },
+            {
+                id: 16, category: "Dinheiro e Estilo de Vida", type: "text",
+                title: "Que objetivos financeiros ou materiais você gostaria de alcançar nos próximos 5 anos?",
+                psych: "Fomenta a cooperação econômica direcionada a metas tangíveis."
+            },
+            // 5. Crescimento pessoal
+            {
+                id: 17, category: "Crescimento Pessoal", type: "choice",
+                title: "Você está satisfeito(a) com a fase de vida em que está hoje?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "A satisfação pessoal impacta diretamente a disponibilidade emocional para cuidar do outro."
+            },
+            {
+                id: 18, category: "Crescimento Pessoal", type: "text",
+                title: "Existe alguma mudança pessoal ou profissional que gostaria de fazer nos próximos anos?",
+                psych: "Revela transições de carreira ou identidade que exigirão apoio mútuo."
+            },
+            {
+                id: 19, category: "Crescimento Pessoal", type: "text",
+                title: "Que tipo de aprendizado, conquista ou desenvolvimento você gostaria de buscar?",
+                psych: "Incentiva o apoio ao desenvolvimento individual dentro da dinâmica relacional."
+            },
+            {
+                id: 20, category: "Crescimento Pessoal", type: "choice",
+                title: "Você sente que nosso relacionamento estimula você a crescer positivamente?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Avalia o conceito de 'expansão do eu', onde um relacionamento bem-sucedido amplia nossos horizontes."
+            },
+            // 6. Diferenças e conflitos
+            {
+                id: 21, category: "Diferenças e Conflitos", type: "text",
+                title: "Quando seu parceiro(a) aponta algo que gostaria que fosse diferente, como você costuma se sentir?",
+                psych: "Identifica reações defensivas automáticas frente a feedbacks construtivos."
+            },
+            {
+                id: 22, category: "Diferenças e Conflitos", type: "text",
+                title: "O que faz você sentir que uma conversa virou crítica, cobrança ou ataque?",
+                psych: "Ajuda a reconhecer os chamados 'gatilhos comunicacionais' que ativam defesas emocionais."
+            },
+            {
+                id: 23, category: "Diferenças e Conflitos", type: "text",
+                title: "O que seu parceiro(a) poderia fazer para você se sentir mais seguro(a) durante uma conversa difícil?",
+                psych: "Constrói acordos de segurança psicológica para a resolução de divergências."
+            },
+            {
+                id: 24, category: "Diferenças e Conflitos", type: "text",
+                title: "O que você poderia fazer para que seu parceiro(a) se sentisse mais ouvido(a) e respeitado(a)?",
+                psych: "Estimula a autorresponsabilidade na escuta ativa e validação empática."
+            },
+            {
+                id: 25, category: "Diferenças e Conflitos", type: "text",
+                title: "Quando vocês discordam, o que você gostaria que acontecesse depois da conversa?",
+                psych: "Aborda o processo de reparação emocional pós-conflito, fundamental para a longevidade da relação."
+            },
+            // 7. Expectativas
+            {
+                id: 26, category: "Expectativas", type: "text",
+                title: "Quais são as 3 coisas mais importantes que você espera de um relacionamento?",
+                psych: "Clarifica os valores não-negociáveis e prioridades afetivas de cada um."
+            },
+            {
+                id: 27, category: "Expectativas", type: "text",
+                title: "Quais 3 coisas você gostaria que melhorassem entre vocês?",
+                psych: "Direciona focos de melhoria contínua de maneira construtiva."
+            },
+            {
+                id: 28, category: "Expectativas", type: "choice",
+                title: "Existe alguma expectativa externa que você sabe que não consegue ou não quer atender?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Estabelece limites saudáveis e aceitação de vulnerabilidades individuais."
+            },
+            {
+                id: 29, category: "Expectativas", type: "text",
+                title: "Existe alguma necessidade sua que você sente que ainda não foi compreendida pelo parceiro(a)?",
+                psych: "Abre espaço seguro para expressão de necessidades emocionais ocultas."
+            },
+            {
+                id: 30, category: "Expectativas", type: "text",
+                title: "O que você considera essencial que nunca deveria mudar entre vocês?",
+                psych: "Protege a essência e a identidade única construída pelo casal ao longo do tempo."
+            },
+            // 8. A pergunta mais importante
+            {
+                id: 31, category: "Visão Geral", type: "choice",
+                title: "Se nossa relação permanecesse exatamente como está hoje durante os próximos 5 anos, você se sentiria feliz?",
+                options: ["Sim", "Não", "Talvez", "Quem sabe"],
+                psych: "Indicador crítico de satisfação global e urgência de alinhamento ou mudanças."
+            }
+        ];
+
+        let currentProfile = '';
+        let currentIndex = 0;
+        let allAnswers = JSON.parse(localStorage.getItem('quiz_rel_answers')) || { 'Parceiro(a) 1': {}, 'Parceiro(a) 2': {} };
+
+        function setProfile(profile) {
+            currentProfile = profile;
+            document.getElementById('profile-selector').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            document.getElementById('category-badge').innerText = q.category;
+            document.getElementById('question-counter').innerText = `Pergunta ${currentIndex + 1} de ${questions.length}`;
+            document.getElementById('question-title').innerText = q.title;
+            document.getElementById('psych-text').innerText = q.psych;
+
+            const savedVal = allAnswers[currentProfile][q.id] || '';
+            const area = document.getElementById('answer-area');
+
+            if (q.type === 'text') {
+                area.innerHTML = `
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Sua Resposta (${currentProfile}):</label>
+                    <textarea id="ans-input" rows="4" class="w-full p-4 rounded-xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none text-slate-700 text-sm" placeholder="Escreva sua reflexão aqui com sinceridade...">${savedVal}</textarea>
+                `;
+            } else {
+                const options = ["Sim", "Não", "Talvez", "Quem sabe"];
+                let html = `<label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Escolha uma opção (${currentProfile}):</label>`;
+                html += `<div class="grid grid-cols-2 gap-3">`;
+                options.forEach(opt => {
+                    const isSelected = savedVal === opt ? 'bg-rose-50 border-rose-500 text-rose-700 font-semibold' : 'border-slate-200 text-slate-700 hover:bg-slate-50';
+                    html += `
+                        <button onclick="selectChoice('${opt}')" class="choice-btn p-4 rounded-xl border text-left transition text-sm ${isSelected}">
+                            ${opt}
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+                area.innerHTML = html;
+            }
+
+            document.getElementById('btn-prev').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('btn-next');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerText = 'Finalizar e Ver Resumo 🎯';
+            } else {
+                nextBtn.innerText = 'Próxima →';
+            }
+        }
+
+        function selectChoice(val) {
+            const q = questions[currentIndex];
+            allAnswers[currentProfile][q.id] = val;
+            saveStorage();
+            renderQuestion();
+        }
+
+        function saveAnswer() {
+            const q = questions[currentIndex];
+            if (q.type === 'text') {
+                const input = document.getElementById('ans-input');
+                if (input) {
+                    allAnswers[currentProfile][q.id] = input.value;
+                    saveStorage();
+                }
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('quiz_rel_answers', JSON.stringify(allAnswers));
+        }
+
+        function nextQuestion() {
+            saveAnswer();
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function prevQuestion() {
+            saveAnswer();
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showSummary() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('summary-container').classList.remove('hidden');
+
+            const list = document.getElementById('user-responses-list');
+            let html = `<h3 class="font-bold text-slate-800 text-sm mb-3">Respostas salvas de ${currentProfile}:</h3>`;
+            
+            questions.forEach((q, idx) => {
+                const ans = allAnswers[currentProfile][q.id] || '(Não respondido)';
+                html += `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs">
+                        <span class="font-semibold text-rose-600 block mb-1">P${idx+1}: ${q.title}</span>
+                        <p class="text-slate-700 whitespace-pre-wrap"><strong>R:</strong> ${ans}</p>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allAnswers, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `respostas_quiz_relacionamento_${currentProfile.toLowerCase().replace(/[^a-z0-9]/g, '_')}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+        function resetApp() {
+            if(confirm("Deseja reiniciar e apagar as respostas salvas neste dispositivo?")) {
+                localStorage.removeItem('quiz_rel_answers');
+                allAnswers = { 'Parceiro(a) 1': {}, 'Parceiro(a) 2': {} };
+                currentIndex = 0;
+                currentProfile = '';
+                document.getElementById('summary-container').classList.add('hidden');
+                document.getElementById('profile-selector').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
