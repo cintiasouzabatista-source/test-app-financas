@@ -14,7 +14,7 @@
         
         <!-- CABEÇALHO -->
         <div class="bg-gradient-to-r from-rose-600 to-pink-600 p-6 text-white text-center">
-            <span class="text-xs uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-semibold">Psicologia Relacional & IA</span>
+            <span class="text-xs uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-semibold">Psicologia Relacional, Signos & IA</span>
             <h1 class="text-2xl font-bold mt-2">Nós Dois: Check-up e Alinhamento</h1>
             <p class="text-xs text-rose-100 mt-1">Um espaço seguro para entender expectativas, fluxos e o futuro da relação.</p>
         </div>
@@ -24,17 +24,25 @@
             <!-- TELA 1: IDENTIFICAÇÃO -->
             <div id="step-auth" class="space-y-4">
                 <h2 class="text-lg font-bold text-slate-900">1. Identificação Inicial</h2>
-                <p class="text-xs text-slate-500">A <strong>idade</strong> é fundamental para a análise de maturidade e ciclo de vida. O apelido é opcional se preferir privacidade.</p>
+                <p class="text-xs text-slate-500">O apelido é opcional. Informe sua <strong>data de nascimento</strong> (para mapearmos o signo e a compatibilidade) ou apenas a idade caso prefira não detalhar o dia exato.</p>
                 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Apelido ou Nome (Opcional):</label>
                     <input type="text" id="user-name" placeholder="Ex: Fênix, Leo..." class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Sua Idade (Obrigatório):</label>
-                    <input type="number" id="user-age" placeholder="Ex: 28" min="15" max="100" class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Data de Nascimento (Opcional):</label>
+                        <input type="date" id="user-birthdate" onchange="calculateSignAndAge()" class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sua Idade:</label>
+                        <input type="number" id="user-age" placeholder="Ex: 28" min="15" max="100" class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
+                    </div>
                 </div>
+
+                <div id="sign-preview" class="text-xs text-rose-600 font-semibold h-4"></div>
 
                 <button onclick="startApp()" class="w-full mt-4 py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
                     Começar Check-up ➔
@@ -47,9 +55,7 @@
                     🔒 <strong>Parte 1 - Check-up Individual e Sigiloso:</strong> O que você responder aqui é 100% confidencial. Seu(sua) parceiro(a) nunca terá acesso a estas respostas brutas; a IA usará apenas para entender o fluxo individual.
                 </div>
 
-                <div id="secret-questions-container" class="space-y-6">
-                    <!-- Inserido via JS -->
-                </div>
+                <div id="secret-questions-container" class="space-y-6"></div>
 
                 <button onclick="nextToCouple()" class="w-full py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
                     Avançar para o Quiz do Casal ➔
@@ -62,9 +68,7 @@
                     🤝 <strong>Parte 2 - Expectativas e Realidade a Dois:</strong> Aqui vocês avaliam a dinâmica da relação. Responda com sinceridade.
                 </div>
 
-                <div id="couple-questions-container" class="space-y-6">
-                    <!-- Inserido via JS -->
-                </div>
+                <div id="couple-questions-container" class="space-y-6"></div>
 
                 <button onclick="finishQuiz()" class="w-full py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
                     Finalizar e Ver Diagnóstico da IA 🎯
@@ -75,11 +79,9 @@
             <div id="step-result" class="hidden space-y-6 text-center">
                 <span class="text-4xl">🤖</span>
                 <h2 class="text-xl font-bold text-slate-900">Diagnóstico Concluído pela IA</h2>
-                <p class="text-xs text-slate-500">Análise neutra baseada em padrões de psicologia relacional e maturidade etária.</p>
+                <p class="text-xs text-slate-500">Análise neutra baseada em padrões de psicologia relacional, ciclos e compatibilidade astrológica.</p>
 
-                <div id="ai-feedback-box" class="text-left space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-700">
-                    <!-- Gerado dinamicamente -->
-                </div>
+                <div id="ai-feedback-box" class="text-left space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-700"></div>
 
                 <button onclick="location.reload()" class="px-6 py-2.5 bg-slate-800 text-white font-medium text-xs rounded-xl hover:bg-slate-900 transition">
                     🔄 Reiniciar Sessão
@@ -90,32 +92,31 @@
     </div>
 
     <script>
-        // Dados temporários locais para teste em um único navegador
-        let sessionData = { name: '', age: 0, secretAnswers: {}, coupleAnswers: {} };
+        let sessionData = { name: '', age: 0, sign: '', secretAnswers: {}, coupleAnswers: {} };
 
         const secretQuestions = [
             {
-                id: 's1', pillar: 'Pessoal / Emocional',
+                id: 's1', section: 'Quiz Pessoal / Emocional',
                 title: 'Antes de nos conhecermos, como você sentia que era o tom da sua vida?',
                 options: ['Muito agitada e intensa', 'Muito quieta / Pacata', 'Solitária / Triste', 'Alegre e leve']
             },
             {
-                id: 's2', pillar: 'Pessoal / Emocional',
+                id: 's2', section: 'Quiz Pessoal / Emocional',
                 title: 'Como você avalia sua energia e seu contentamento emocional no dia a dia atual?',
                 options: ['Em alta, me sinto bem', 'Instável / Altos e baixos', 'Baixa, me sinto esgotado(a)']
             },
             {
-                id: 's3', pillar: 'Profissional / Material',
+                id: 's3', section: 'Quiz Profissional / Material',
                 title: 'Olhando para a sua carreira e finanças, você sente que está progredindo ou estagnado(a)?',
                 options: ['Em forte crescimento', 'Estável / No piloto automático', 'Sinto que empaquei ou regredi']
             },
             {
-                id: 's4', pillar: 'Intelectual / Evolutivo',
+                id: 's4', section: 'Quiz Intelectual / Evolutivo',
                 title: 'Você sente que tem espaço para aprender coisas novas e expandir sua mente?',
                 options: ['Sim, busco constante evolução', 'Pouco espaço, a rotina consome', 'Nenhum, sinto minha mente estagnada']
             },
             {
-                id: 's5', pillar: 'Hábitos e Fugas',
+                id: 's5', section: 'Quiz de Hábitos e Energia',
                 title: 'Você sente que algum hábito pessoal (como bebidas, jogos, pornografia, redes sociais) drena sua energia?',
                 options: ['Não, tenho tudo sob controle', 'Às vezes exagero, mas consigo gerenciar', 'Sim, sinto que isso está virando uma fuga']
             }
@@ -149,10 +150,46 @@
             }
         ];
 
+        function calculateSignAndAge() {
+            const bdateVal = document.getElementById('user-birthdate').value;
+            if (!bdateVal) return;
+            
+            const dob = new Date(bdateVal);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            if (!isNaN(age) && age > 0) {
+                document.getElementById('user-age').value = age;
+            }
+
+            const day = dob.getDate() + 1;
+            const month = dob.getMonth() + 1;
+            let sign = '';
+
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 20)) sign = 'Áries ♈';
+            else if ((month == 4 && day >= 21) || (month == 5 && day <= 20)) sign = 'Touro ♉';
+            else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) sign = 'Gêmeos ♊';
+            else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) sign = 'Câncer ♋';
+            else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) sign = 'Leão ♌';
+            else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) sign = 'Virgem ♍';
+            else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) sign = 'Libra ♎';
+            else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) sign = 'Escorpião ♏';
+            else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) sign = 'Sagitário ♐';
+            else if ((month == 12 && day >= 22) || (month == 1 && day <= 20)) sign = 'Capricórnio ♑';
+            else if ((month == 1 && day >= 21) || (month == 2 && day <= 18)) sign = 'Aquário ♒';
+            else sign = 'Peixes ♓';
+
+            sessionData.sign = sign;
+            document.getElementById('sign-preview').innerText = `✨ Signo detectado: ${sign}`;
+        }
+
         function startApp() {
             const ageInput = document.getElementById('user-age').value;
             if (!ageInput) {
-                alert('Por favor, informe sua idade para prosseguir com a análise.');
+                alert('Por favor, informe ao menos a sua idade para prosseguir com a análise.');
                 return;
             }
             sessionData.age = parseInt(ageInput);
@@ -169,11 +206,11 @@
             secretQuestions.forEach((q, idx) => {
                 html += `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold text-amber-600 uppercase">Pilar: ${q.pillar}</span>
+                        <span class="text-[10px] font-bold text-amber-600 uppercase">${q.section}</span>
                         <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
                         <div class="space-y-2">
                 `;
-                q.options.forEach((opt, oIdx) => {
+                q.options.forEach((opt) => {
                     html += `
                         <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 cursor-pointer hover:bg-slate-100">
                             <input type="radio" name="sec_${q.id}" value="${opt}" class="text-rose-600"> ${opt}
@@ -190,7 +227,6 @@
         }
 
         function nextToCouple() {
-            // Validar se respondeu as sigilosas
             for (let q of secretQuestions) {
                 const selected = document.querySelector(`input[name="sec_${q.id}"]:checked`);
                 if (!selected) {
@@ -218,7 +254,7 @@
                         <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
                         <div class="space-y-2">
                 `;
-                q.options.forEach((opt, oIdx) => {
+                q.options.forEach((opt) => {
                     html += `
                         <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 cursor-pointer hover:bg-slate-100">
                             <input type="radio" name="cou_${q.id}" value="${opt}" class="text-rose-600"> ${opt}
@@ -254,24 +290,22 @@
 
         function generateAIAnalysis() {
             const box = document.getElementById('ai-feedback-box');
-            
-            // Simulação da Inteligência Artificial cruzando a idade e os dados sigilosos
             let ageProfile = sessionData.age < 25 ? "fase de transição e consolidação de identidade" : sessionData.age < 40 ? "fase de forte construção de metas de médio prazo e rotina" : "fase de maturidade consolidada e reavaliação de prioridades";
-            
+            let signText = sessionData.sign ? ` e regência do signo de ${sessionData.sign}` : '';
             let hasStress = Object.values(sessionData.secretAnswers).some(val => val.answer.includes('esgotado') || val.answer.includes('fuga') || val.answer.includes('empacuei'));
             
             let html = `
                 <div class="border-l-4 border-rose-500 pl-3 py-1">
-                    <strong class="text-slate-900 block mb-1">📊 Leitura de Ciclo Etário (${sessionData.age} anos):</strong>
-                    A IA identificou que você está em uma ${ageProfile}, o que gera demandas específicas sobre como equilibra espaço pessoal e expectativas afetivas.
+                    <strong class="text-slate-900 block mb-1">📊 Leitura de Ciclo Etário e Astrológica:</strong>
+                    A IA identificou que você está em uma ${ageProfile}${signText}, o que molda naturalmente a forma como busca estabilidade e expressa afeto na relação.
                 </div>
                 <div class="border-l-4 border-amber-500 pl-3 py-1 mt-3">
                     <strong class="text-slate-900 block mb-1">💡 Diagnóstico de Fluxo e Alinhamento:</strong>
-                    ${hasStress ? '🟡 <strong>Ponto de Atenção Sutil:</strong> Notamos que há indícios de desgaste ou sobrecarga individual recente. A IA aponta que pressões de rotina ou cansaço pessoal podem estar interferindo sutilmente na percepção do futuro a dois.' : '🟢 <strong>Harmonia Sólida:</strong> Seus indicadores apontam boa estabilidade emocional e clareza nas expectativas compartilhadas.'}
+                    ${hasStress ? '🟡 <strong>Ponto de Atenção Sutil:</strong> Notamos indícios de sobrecarga individual recente. A IA aponta que cansaços ou pressões particulares podem influenciar sutilmente a sua leitura do ritmo a dois.' : '🟢 <strong>Harmonia Sólida:</strong> Seus indicadores apontam boa estabilidade emocional e alinhamento saudável.'}
                 </div>
                 <div class="border-l-4 border-emerald-500 pl-3 py-1 mt-3">
                     <strong class="text-slate-900 block mb-1">🛠️ Sugestão para os Próximos 30 Dias:</strong>
-                    Usem os comentários registrados para abrir uma conversa empática utilizando a escuta ativa: foquem em validar o momento um do outro sem buscar culpados, alinhando pequenos ajustes na rotina e no tempo de qualidade.
+                    Utilize a escuta ativa baseada nos comentários registrados para validar o momento do(a) parceiro(a) com empatia, ajustando pequenos pontos da rotina sem apontar culpados.
                 </div>
             `;
             box.innerHTML = html;
