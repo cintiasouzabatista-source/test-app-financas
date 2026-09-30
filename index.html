@@ -12,7 +12,7 @@
 
     <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-rose-100 overflow-hidden">
         
-        <!-- CABEÇALHO ATUALIZADO -->
+        <!-- CABEÇALHO -->
         <div class="bg-gradient-to-r from-rose-600 to-pink-600 p-6 text-white text-center">
             <span class="text-xs uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-semibold">Psicologia Relacional & IA</span>
             <h1 class="text-2xl font-bold mt-2">Expectativas x Realidade</h1>
@@ -49,23 +49,23 @@
                 </button>
             </div>
 
-            <!-- TELA 2: PARTE 1 - RAIO-X SIGILOSO -->
+            <!-- TELA 2: PARTE 1 - RAIO-X INDIVIDUAL -->
             <div id="step-secret" class="hidden space-y-6">
                 <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900">
-                    🔒 <strong>Parte 1 - Check-up Individual e Sigiloso:</strong> O que você responder aqui é 100% confidencial. Seu(sua) parceiro(a) nunca terá acesso a estas respostas brutas; a IA usará apenas para entender o fluxo individual.
+                    🔒 <strong>Parte 1 - Check-up Individual e Sigiloso:</strong> O que você responder aqui é 100% confidencial. Seu(sua) parceiro(a) nunca terá acesso a estas respostas brutas; a IA usará apenas para compor uma leitura profunda.
                 </div>
 
                 <div id="secret-questions-container" class="space-y-6"></div>
 
                 <button onclick="nextToCouple()" class="w-full py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
-                    Avançar para o Quiz do Casal ➔
+                    Avançar para Expectativas x Realidade ➔
                 </button>
             </div>
 
-            <!-- TELA 3: PARTE 2 - QUIZ DO CASAL -->
+            <!-- TELA 3: PARTE 2 - EXPECTATIVAS X REALIDADE DO CASAL -->
             <div id="step-couple" class="hidden space-y-6">
                 <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl text-xs text-rose-900">
-                    🤝 <strong>Parte 2 - Expectativas e Realidade a Dois:</strong> Aqui vocês avaliam a dinâmica da relação. Responda com sinceridade.
+                    🤝 <strong>Parte 2 - Expectativas x Realidade a Dois:</strong> Avalie com sinceridade como o dia a dia e o futuro da relação se comparam ao que você deseja.
                 </div>
 
                 <div id="couple-questions-container" class="space-y-6"></div>
@@ -79,7 +79,7 @@
             <div id="step-result" class="hidden space-y-6 text-center">
                 <span class="text-4xl">🤖</span>
                 <h2 class="text-xl font-bold text-slate-900">Diagnóstico Concluído pela IA</h2>
-                <p class="text-xs text-slate-500">Análise neutra baseada em padrões de psicologia relacional, ciclos e compatibilidade astrológica.</p>
+                <p class="text-xs text-slate-500">Análise aprofundada baseada em psicologia relacional, ciclos etários e compatibilidade.</p>
 
                 <div id="ai-feedback-box" class="text-left space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-700"></div>
 
@@ -94,59 +94,61 @@
     <script>
         let sessionData = { name: '', age: 0, sign: '', secretAnswers: {}, coupleAnswers: {} };
 
+        // 5 Perguntas Aprofundadas para o Quiz Pessoal / Emocional
         const secretQuestions = [
             {
                 id: 's1', section: 'Quiz Pessoal / Emocional',
-                title: 'Antes de nos conhecermos, como você sentia que era o tom da sua vida?',
-                options: ['Muito agitada e intensa', 'Muito quieta / Pacata', 'Solitária / Triste', 'Alegre e leve']
+                title: 'Como você avalia sua estabilidade emocional e humor predominante nas últimas semanas?',
+                options: ['Estável e com bom equilíbrio', 'Oscilante (altos e baixos frequentes)', 'Em desgaste ou esgotamento constante']
             },
             {
                 id: 's2', section: 'Quiz Pessoal / Emocional',
-                title: 'Como você avalia sua energia e seu contentamento emocional no dia a dia atual?',
-                options: ['Em alta, me sinto bem', 'Instável / Altos e baixos', 'Baixa, me sinto esgotado(a)']
+                title: 'Quando você enfrenta um problema desafiivo individual, qual costuma ser sua principal reação?',
+                options: ['Busco resolver de forma prática e imediata', 'Isolo-me um pouco para processar sozinho(a)', 'Sinto-me sobrecarregado(a) e demoro a agir']
             },
             {
-                id: 's3', section: 'Quiz Profissional / Material',
-                title: 'Olhando para a sua carreira e finanças, você sente que está progredindo ou estagnado(a)?',
-                options: ['Em forte crescimento', 'Estável / No piloto automático', 'Sinto que empaquei ou regredi']
-            },
-            {
-                id: 's4', section: 'Quiz Intelectual / Evolutivo',
-                title: 'Você sente que tem espaço para aprender coisas novas e expandir sua mente?',
-                options: ['Sim, busco constante evolução', 'Pouco espaço, a rotina consome', 'Nenhum, sinto minha mente estagnada']
-            },
-            {
-                id: 's5', section: 'Quiz de Hábitos e Energia',
+                id: 's3', section: 'Quiz Pessoal / Emocional',
                 title: 'Seus hábitos pessoais drenam sua energia, quando falamos de vícios diversos (seja redes sociais, bebida, jogos, etc)?',
-                options: ['Não, tenho tudo sob controle', 'Às vezes exagero, mas consigo gerenciar', 'Sim, sinto que isso está virando uma fuga']
+                options: ['Não, tenho total controle sobre isso', 'Às vezes exagero, mas consigo gerenciar', 'Sim, sinto que isso drena minha energia ou vira fuga']
+            },
+            {
+                id: 's4', section: 'Quiz Pessoal / Emocional',
+                title: 'Como você enxerga o seu nível atual de realização pessoal fora do relacionamento (projetos, sonhos, lazer)?',
+                options: ['Muito satisfeito(a) e em constante evolução', 'Em busca de rumo, sinto que estagnei um pouco', 'Frustrado(a) por falta de tempo ou espaço']
+            },
+            {
+                id: 's5', section: 'Quiz Pessoal / Emocional',
+                title: 'No seu dia a dia, você sente que tem momentos genuínos de paz mental e descanso?',
+                options: ['Sim, consigo recarregar as energias bem', 'Raramente, a rotina consome meu descanso', 'Não me sinto descansado(a) há muito tempo']
             }
         ];
 
+        // 5 Perguntas Aprofundadas para Expectativas x Realidade a Dois
         const coupleQuestions = [
             {
-                id: 'c1', category: 'O que temos hoje',
-                title: 'O que mais gosto na nossa relação é a base sólida e o carinho diário que construímos[cite: 1].',
-                options: ['Sim, é exatamente o que sinto', 'Em partes / Tenho ressalvas', 'Não sinto isso hoje']
+                id: 'c1', category: 'Expectativas x Realidade',
+                title: 'O nível de carinho, diálogo e cumplicidade diária condiz com o que você esperava da relação?',
+                options: ['Sim, atende ou supera minhas expectativas', 'Atende em partes, sinto falta de mais profundidade', 'Ficou bem abaixo do que eu esperava']
             },
             {
-                id: 'c2', category: 'Visão de Futuro',
-                title: 'Quando imagino nós dois daqui a 5 anos, vejo nossos objetivos e estilos de vida alinhados[cite: 2].',
-                options: ['Vejo objetivos perfeitamente alinhados', 'Vejo divergências conversáveis', 'Vejo caminhos totalmente diferentes']
+                id: 'c2', category: 'Expectativas x Realidade',
+                title: 'Como você avalia a divisão de iniciativas e responsabilidades práticas no dia a dia do casal?',
+                options: ['Justa e bem equilibrada entre os dois', 'Mais ou menos, um acaba puxando mais o fardo', 'Desequilibrada, sinto que sobrecarrega um lado']
             },
             {
-                id: 'c3', category: 'Iniciativa e Dinâmica',
-                title: 'A divisão de iniciativa para marcar passeios e momentos especiais é justa e equilibrada[cite: 3].',
-                options: ['Sim, é bem dividida', 'Mais ou menos, um puxa mais', 'Não, pesa tudo para um lado só']
+                id: 'c3', category: 'Expectativas x Realidade',
+                title: 'Quando surgem divergências ou conflitos, como costuma ser a resolução na prática?',
+                options: ['Conversamos com respeito e encontramos acordos', 'Geramos atritos prolongados ou silêncios difíceis', 'Evitamos falar para não piorar as coisas']
             },
             {
-                id: 'c4', category: 'Conflitos e Segurança',
-                title: 'Quando conversamos sobre problemas ou pontos a melhorar, sinto-me seguro(a) emocionalmente[cite: 4].',
-                options: ['Sempre ou quase sempre', 'Depende muito do assunto', 'Raras vezes / Me sinto atacado(a)']
+                id: 'c4', category: 'Expectativas x Realidade',
+                title: 'A intimidade e a conexão física/afetiva do casal acompanham o ritmo que faz sentido para você?',
+                options: ['Sim, estamos bem conectados nesse ponto', 'Oscila bastante conforme o estresse da rotina', 'Está distante ou fria em relação ao ideal']
             },
             {
-                id: 'c5', category: 'Visão Global',
-                title: 'Se a nossa relação permanecesse exatamente como está hoje durante os próximos 5 anos, eu me sentiria completamente feliz[cite: 5]?',
-                options: ['Sim, me sentiria muito feliz', 'Tenho ressalvas importantes', 'Não, precisaria mudar muita coisa']
+                id: 'c5', category: 'Expectativas x Realidade',
+                title: 'Olhando para os planos de médio e longo prazo, vocês caminham na mesma direção?',
+                options: ['Sim, nossos objetivos e sonhos estão alinhados', 'Temos algumas discordâncias importantes para alinhar', 'Nossos caminhos parecem estar indo para lados opostos']
             }
         ];
 
@@ -206,7 +208,7 @@
             secretQuestions.forEach((q, idx) => {
                 html += `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold text-amber-600 uppercase">${q.section}</span>
+                        <span class="text-[10px] font-bold text-amber-600 uppercase">${q.section} (Questão ${idx+1}/5)</span>
                         <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
                         <div class="space-y-2">
                 `;
@@ -219,7 +221,7 @@
                 });
                 html += `
                         </div>
-                        <input type="text" id="com_sec_${q.id}" placeholder="Comentário opcional..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
+                        <input type="text" id="com_sec_${q.id}" placeholder="Comentário opcional (exemplo ou detalhe)..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
                     </div>
                 `;
             });
@@ -230,7 +232,7 @@
             for (let q of secretQuestions) {
                 const selected = document.querySelector(`input[name="sec_${q.id}"]:checked`);
                 if (!selected) {
-                    alert('Por favor, responda todas as questões do check-up sigiloso.');
+                    alert('Por favor, responda todas as 5 questões do check-up individual.');
                     return;
                 }
                 sessionData.secretAnswers[q.id] = {
@@ -250,7 +252,7 @@
             coupleQuestions.forEach((q, idx) => {
                 html += `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold text-rose-600 uppercase">Tema: ${q.category}</span>
+                        <span class="text-[10px] font-bold text-rose-600 uppercase">Tema: ${q.category} (Questão ${idx+1}/5)</span>
                         <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
                         <div class="space-y-2">
                 `;
@@ -263,7 +265,7 @@
                 });
                 html += `
                         </div>
-                        <input type="text" id="com_cou_${q.id}" placeholder="Comentário opcional..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
+                        <input type="text" id="com_cou_${q.id}" placeholder="Comentário opcional (exemplo ou detalhe)..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
                     </div>
                 `;
             });
@@ -274,7 +276,7 @@
             for (let q of coupleQuestions) {
                 const selected = document.querySelector(`input[name="cou_${q.id}"]:checked`);
                 if (!selected) {
-                    alert('Por favor, responda todas as questões do quiz do casal.');
+                    alert('Por favor, responda todas as 5 questões de Expectativas x Realidade.');
                     return;
                 }
                 sessionData.coupleAnswers[q.id] = {
@@ -292,20 +294,20 @@
             const box = document.getElementById('ai-feedback-box');
             let ageProfile = sessionData.age < 25 ? "fase de transição e consolidação de identidade" : sessionData.age < 40 ? "fase de forte construção de metas de médio prazo e rotina" : "fase de maturidade consolidada e reavaliação de prioridades";
             let signText = sessionData.sign ? ` e regência do signo de ${sessionData.sign}` : '';
-            let hasStress = Object.values(sessionData.secretAnswers).some(val => val.answer.includes('esgotado') || val.answer.includes('fuga') || val.answer.includes('empacuei'));
+            let hasStress = Object.values(sessionData.secretAnswers).some(val => val.answer.includes('esgotamento') || val.answer.includes('drena') || val.answer.includes('Frustrado'));
             
             let html = `
                 <div class="border-l-4 border-rose-500 pl-3 py-1">
-                    <strong class="text-slate-900 block mb-1">📊 Leitura de Ciclo Etário e Astrológica:</strong>
-                    A IA identificou que você está em uma ${ageProfile}${signText}, o que molda naturalmente a forma como busca estabilidade e expressa afeto na relação.
+                    <strong class="text-slate-900 block mb-1">📊 Leitura de Ciclo Etário e Comportamental:</strong>
+                    A IA cruzou os dados indicando que você se encontra em uma ${ageProfile}${signText}. Isso impacta diretamente na forma como você equilibra suas demandas internas com as exigências da vida a dois.
                 </div>
                 <div class="border-l-4 border-amber-500 pl-3 py-1 mt-3">
-                    <strong class="text-slate-900 block mb-1">💡 Diagnóstico de Fluxo e Alinhamento:</strong>
-                    ${hasStress ? '🟡 <strong>Ponto de Atenção Sutil:</strong> Notamos indícios de sobrecarga individual recente. A IA aponta que cansaços ou pressões particulares podem influenciar sutilmente a sua leitura do ritmo a dois.' : '🟢 <strong>Harmonia Sólida:</strong> Seus indicadores apontam boa estabilidade emocional e alinhamento saudável.'}
+                    <strong class="text-slate-900 block mb-1">💡 Diagnóstico de Expectativas x Realidade:</strong>
+                    ${hasStress ? '🟡 <strong>Ponto de Atenção Detectado:</strong> Suas respostas individuais apontam sobrecarga recente ou desgaste de energia. A IA identifica que o cansaço individual pode intensificar pequenas distâncias entre a expectativa e a realidade prática da relação.' : '🟢 <strong>Alinhamento Sólido:</strong> Seus indicadores mostram um bom nível de resiliência individual e sintonia saudável nas expectativas do casal.'}
                 </div>
                 <div class="border-l-4 border-emerald-500 pl-3 py-1 mt-3">
-                    <strong class="text-slate-900 block mb-1">🛠️ Sugestão para os Próximos 30 Dias:</strong>
-                    Utilize a escuta ativa baseada nos comentários registrados para validar o momento do(a) parceiro(a) com empatia, ajustando pequenos pontos da rotina sem apontar culpados.
+                    <strong class="text-slate-900 block mb-1">🛠️ Roteiro Prático para os Próximos Passos:</strong>
+                    Use os comentários que você registrou durante o teste como base para uma conversa aberta. Valide o momento emocional um do outro sem cobranças excessivas, focando em ajustes práticos de rotina.
                 </div>
             `;
             box.innerHTML = html;
