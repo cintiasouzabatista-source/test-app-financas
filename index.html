@@ -3,314 +3,903 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expectativas x Realidade: Alinhamento de Casal</title>
+    <title>Gestão de Veículos</title>
+    <!-- Tailwind CSS para estilização moderna -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gradient-to-br from-rose-50 via-pink-550 to-amber-50 min-h-screen text-slate-800 py-6 px-4">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-rose-100 overflow-hidden">
-        
-        <!-- CABEÇALHO -->
-        <div class="bg-gradient-to-r from-rose-600 to-pink-600 p-6 text-white text-center">
-            <span class="text-xs uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full font-semibold">Psicologia Relacional & IA</span>
-            <h1 class="text-2xl font-bold mt-2">Expectativas x Realidade</h1>
-            <p class="text-xs text-rose-100 mt-1">Um espaço seguro para alinhar fluxos, rotina e o futuro da relação.</p>
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-car-side text-2xl text-blue-400"></i>
+                <h1 class="text-xl font-bold tracking-tight">Gestão de Veículos</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <select id="vehicleSelector" class="bg-slate-800 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <!-- Preenchido via JS -->
+                </select>
+                <button onclick="abrirModalVeiculo()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded-lg font-medium transition flex items-center space-x-1">
+                    <i class="fa-solid fa-plus text-xs"></i><span>Novo Veículo</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+        <!-- Card de Resumo do Veículo Atual com Mês a Mês no Topo -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span id="veiculoCategoria" class="text-xs uppercase tracking-wider font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">Particular</span>
+                    <h2 id="veiculoNome" class="text-2xl font-bold text-slate-900 mt-1">Carregando veículo...</h2>
+                    <p id="veiculoPlaca" class="text-sm text-slate-500 font-mono">PLACA: ---</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="abrirModalKm()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-xl font-medium shadow-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-gauge-high"></i><span>Atualizar KM / Automático</span>
+                    </button>
+                    <button onclick="abrirModalTransacao()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-xl font-medium shadow-sm transition flex items-center space-x-2">
+                        <i class="fa-solid fa-receipt"></i><span>Novo Gasto / Abastecimento</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mês a Mês no Topo do Card -->
+            <div class="border-t border-slate-100 pt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><i class="fa-solid fa-calendar-days mr-1"></i> Resumo Mês a Mês</span>
+                    <select id="filtroAnoTopo" onchange="atualizarResumoMesAMes()" class="text-xs bg-slate-100 border border-slate-300 rounded-md px-2 py-1 font-medium">
+                        <!-- Anos preenchidos via JS -->
+                    </select>
+                </div>
+                <div id="gridMesAMes" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2 text-center">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
         </div>
 
-        <div class="p-6 md:p-8">
-
-            <!-- TELA 1: IDENTIFICAÇÃO -->
-            <div id="step-auth" class="space-y-4">
-                <h2 class="text-lg font-bold text-slate-900">1. Identificação Inicial</h2>
-                <p class="text-xs text-slate-500">O apelido é opcional. Informe sua <strong>data de nascimento</strong> (para mapearmos o signo e a compatibilidade) ou apenas a idade caso prefira não detalhar o dia exato.</p>
-                
+        <!-- Indicadores Rápidos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-content text-xl font-bold justify-center"><i class="fa-solid fa-gauge"></i></div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Apelido ou Nome (Opcional):</label>
-                    <input type="text" id="user-name" placeholder="Ex: Fênix, Leo..." class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
+                    <p class="text-xs text-slate-500 font-medium">Odômetro Atual</p>
+                    <h3 id="statOdometro" class="text-lg font-bold text-slate-900">0 km</h3>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Data de Nascimento (Opcional):</label>
-                        <input type="date" id="user-birthdate" onchange="calculateSignAndAge()" class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sua Idade:</label>
-                        <input type="number" id="user-age" placeholder="Ex: 28" min="15" max="100" class="w-full p-3 rounded-xl border border-slate-200 text-sm focus:border-rose-500 outline-none">
-                    </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-content text-xl font-bold justify-center"><i class="fa-solid fa-gas-pump"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Total Gasto Abastecimento</p>
+                    <h3 id="statAbastecimento" class="text-lg font-bold text-slate-900">R$ 0,00</h3>
                 </div>
-
-                <div id="sign-preview" class="text-xs text-rose-600 font-semibold h-4"></div>
-
-                <button onclick="startApp()" class="w-full mt-4 py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
-                    Começar Check-up ➔
-                </button>
             </div>
-
-            <!-- TELA 2: PARTE 1 - RAIO-X INDIVIDUAL -->
-            <div id="step-secret" class="hidden space-y-6">
-                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900">
-                    🔒 <strong>Parte 1 - Check-up Individual e Sigiloso:</strong> O que você responder aqui é 100% confidencial. Seu(sua) parceiro(a) nunca terá acesso a estas respostas brutas; a IA usará apenas para compor uma leitura profunda.
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-content text-xl font-bold justify-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Outras Despesas / Manutenção</p>
+                    <h3 id="statManutencao" class="text-lg font-bold text-slate-900">R$ 0,00</h3>
                 </div>
-
-                <div id="secret-questions-container" class="space-y-6"></div>
-
-                <button onclick="nextToCouple()" class="w-full py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
-                    Avançar para Expectativas x Realidade ➔
-                </button>
             </div>
-
-            <!-- TELA 3: PARTE 2 - EXPECTATIVAS X REALIDADE DO CASAL -->
-            <div id="step-couple" class="hidden space-y-6">
-                <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl text-xs text-rose-900">
-                    🤝 <strong>Parte 2 - Expectativas x Realidade a Dois:</strong> Avalie com sinceridade como o dia a dia e o futuro da relação se comparam ao que você deseja.
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-content text-xl font-bold justify-center"><i class="fa-solid fa-calculator"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Média Consumo</p>
+                    <h3 id="statConsumo" class="text-lg font-bold text-slate-900">0.0 km/L</h3>
                 </div>
-
-                <div id="couple-questions-container" class="space-y-6"></div>
-
-                <button onclick="finishQuiz()" class="w-full py-3 bg-rose-600 text-white font-semibold rounded-xl text-sm shadow hover:bg-rose-700 transition">
-                    Finalizar e Ver Diagnóstico da IA 🎯
-                </button>
             </div>
+        </div>
 
-            <!-- TELA 4: DIAGNÓSTICO DA IA -->
-            <div id="step-result" class="hidden space-y-6 text-center">
-                <span class="text-4xl">🤖</span>
-                <h2 class="text-xl font-bold text-slate-900">Diagnóstico Concluído pela IA</h2>
-                <p class="text-xs text-slate-500">Análise aprofundada baseada em psicologia relacional, ciclos etários e compatibilidade.</p>
-
-                <div id="ai-feedback-box" class="text-left space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs text-slate-700"></div>
-
-                <button onclick="location.reload()" class="px-6 py-2.5 bg-slate-800 text-white font-medium text-xs rounded-xl hover:bg-slate-900 transition">
-                    🔄 Reiniciar Sessão
-                </button>
+        <!-- Seção de Gráficos e Filtros -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-chart-line mr-1.5 text-blue-500"></i> Gráficos Analíticos</h3>
+                <div class="flex items-center space-x-2">
+                    <label class="text-xs text-slate-500 font-medium">Período do Gráfico:</label>
+                    <select id="filtroPeriodoGrafico" onchange="renderizarGraficos()" class="text-xs bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 font-medium">
+                        <option value="30">Últimos 30 dias</option>
+                        <option value="90">Últimos 90 dias</option>
+                        <option value="180">Últimos 6 meses</option>
+                        <option value="365">Último ano</option>
+                        <option value="all" selected>Todo o Histórico</option>
+                    </select>
+                </div>
             </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 relative h-72">
+                    <canvas id="graficoGastos"></canvas>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 relative h-72">
+                    <canvas id="graficoKm"></canvas>
+                </div>
+            </div>
+        </div>
 
+        <!-- Histórico e Transações com Filtro Completo -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-list-ul mr-1.5 text-blue-500"></i> Histórico de Transações e Anexos PDF</h3>
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="filtroTipoTransacao" onchange="renderizarTabela()" class="text-xs bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5">
+                        <option value="todos">Todos os Tipos</option>
+                        <option value="Abastecimento">Abastecimentos</option>
+                        <option value="Manutencao">Manutenção</option>
+                        <option value="Outros">Outros Gastos</option>
+                    </select>
+                    <input type="date" id="filtroDataInicio" onchange="renderizarTabela()" class="text-xs bg-slate-100 border border-slate-300 rounded-lg px-2 py-1.5">
+                    <input type="date" id="filtroDataFim" onchange="renderizarTabela()" class="text-xs bg-slate-100 border border-slate-300 rounded-lg px-2 py-1.5">
+                    <button onclick="limparFiltrosTabela()" class="text-xs text-blue-600 hover:underline font-medium px-2 py-1">Limpar Filtros</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 uppercase text-xs font-semibold">
+                        <tr>
+                            <th class="px-4 py-3 rounded-l-lg">Data</th>
+                            <th class="px-4 py-3">Tipo</th>
+                            <th class="px-4 py-3">Descrição / Posto</th>
+                            <th class="px-4 py-3">KM</th>
+                            <th class="px-4 py-3">Valor (R$)</th>
+                            <th class="px-4 py-3">Anexo PDF</th>
+                            <th class="px-4 py-3 rounded-r-lg text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaTransacoesBody" class="divide-y divide-slate-100">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL NOVO VEÍCULO -->
+    <div id="modalVeiculo" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900">Cadastrar Novo Veículo</h3>
+                <button onclick="fecharModalVeiculo()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nome / Modelo do Veículo</label>
+                    <input type="text" id="inputNomeVeiculo" placeholder="Ex: Honda CG 160 / Onix" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Placa</label>
+                    <input type="text" id="inputPlacaVeiculo" placeholder="Ex: ABC-1234" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label>
+                    <select id="inputCatVeiculo" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="Particular">Particular</option>
+                        <option value="Trabalho / Moto">Trabalho / Moto</option>
+                        <option value="Frota">Frota</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Odômetro Inicial (km)</label>
+                    <input type="number" id="inputOdometroInicial" placeholder="0" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="fecharModalVeiculo()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Cancelar</button>
+                <button onclick="salvarNovoVeiculo()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">Salvar Veículo</button>
+            </div>
         </div>
     </div>
 
+    <!-- MODAL ATUALIZAR KM / CÁLCULO AUTOMÁTICO POR DIAS DA SEMANA -->
+    <div id="modalKm" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-gauge-high text-emerald-600 mr-2"></i>Atualizar Odômetro</h3>
+                <button onclick="fecharModalKm()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Abas internas: Manual vs Automático -->
+            <div class="flex rounded-lg bg-slate-100 p-1 text-sm font-medium">
+                <button onclick="mudarAbaKm('manual')" id="tabBtnManual" class="flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition">Manual / Direto</button>
+                <button onclick="mudarAbaKm('automatico')" id="tabBtnAuto" class="flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition">Automático por Dias</button>
+            </div>
+
+            <!-- Conteúdo Manual -->
+            <div id="secaoKmManual" class="space-y-3 pt-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Novo Odômetro (km)</label>
+                    <input type="number" id="inputNovoKmManual" placeholder="Ex: 45200" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <button onclick="salvarKmManual()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg transition text-sm">Atualizar Odômetro</button>
+            </div>
+
+            <!-- Conteúdo Automático por Dias da Semana -->
+            <div id="secaoKmAuto" class="space-y-4 pt-2 hidden">
+                <p class="text-xs text-slate-500">Calcule e incremente o KM com base em uma média diária e nos dias da semana em que o veículo rodou no período.</p>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Período</label>
+                        <select id="autoTipoPeriodo" onchange="atualizarLabelPeriodo()" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="dias">Dias Corridos</option>
+                            <option value="semanas" selected>Semanas</option>
+                            <option value="meses">Meses</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="labelQtdPeriodo" class="block text-xs font-semibold text-slate-600 mb-1">Quantidade de Semanas</label>
+                        <input type="number" id="autoQtd" value="4" min="1" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Média de KM rodados por dia ativo</label>
+                    <input type="number" id="autoKmPorDia" placeholder="Ex: 50" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Selecione os Dias da Semana Ativos:</label>
+                    <div class="grid grid-cols-4 gap-2 text-xs font-medium">
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="1" checked class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Segunda</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="2" checked class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Terça</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="3" checked class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Quarta</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="4" checked class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Quinta</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="5" checked class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Sexta</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="6" class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Sábado</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100">
+                            <input type="checkbox" name="diasSemana" value="0" class="rounded text-emerald-600 focus:ring-emerald-500"> <span>Domingo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 flex justify-between items-center">
+                    <span>KM Calculado Estimado:</span>
+                    <span id="previewKmCalculado" class="font-bold text-sm">0 km</span>
+                </div>
+
+                <button onclick="salvarKmAutomatico()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg transition text-sm">Aplicar KM Calculado ao Odômetro</button>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="fecharModalKm()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVA TRANSAÇÃO / GASTO / ABASTECIMENTO -->
+    <div id="modalTransacao" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900" id="tituloModalTransacao">Nova Transação</h3>
+                <button onclick="fecharModalTransacao()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <input type="hidden" id="editTransacaoId">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo de Gasto</label>
+                    <select id="transacaoTipo" onchange="alternarCamposAbastecimento()" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="Abastecimento">Abastecimento</option>
+                        <option value="Manutencao">Manutenção</option>
+                        <option value="Outros">Outros Gastos (Pedágio, IPVA, etc.)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Data</label>
+                    <input type="date" id="transacaoData" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Descrição / Posto / Oficina</label>
+                    <input type="text" id="transacaoDesc" placeholder="Ex: Posto Shell / Troca de Óleo" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Quilometragem Atual no Momento</label>
+                    <input type="number" id="transacaoKm" placeholder="Ex: 45000" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3" id="camposAbastecimentoExtra">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Litros</label>
+                        <input type="number" step="0.01" id="transacaoLitros" placeholder="Ex: 40.5" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Preço por Litro (R$)</label>
+                        <input type="number" step="0.01" id="transacaoPrecoLitro" placeholder="Ex: 5.89" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Total (R$)</label>
+                    <input type="number" step="0.01" id="transacaoValor" placeholder="Ex: 150.00" class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Anexar Comprovante / PDF / Imagem</label>
+                    <input type="file" id="transacaoArquivo" accept=".pdf,image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="fecharModalTransacao()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Cancelar</button>
+                <button onclick="salvarTransacao()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">Salvar Transação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL VISUALIZADOR DE PDF / ANEXO -->
+    <div id="modalPdf" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-4 shadow-xl h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i>Visualizador de Anexo / PDF</h3>
+                <button onclick="fecharModalPdf()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex-1 bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center relative">
+                <iframe id="iframePdf" class="w-full h-full border-0"></iframe>
+                <div id="containerImagemAnexo" class="w-full h-full flex items-center justify-center hidden p-2">
+                    <img id="imagemAnexoPreview" class="max-h-full max-w-full object-contain rounded-lg">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="fecharModalPdf()" class="px-4 py-2 text-sm font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal de lógica -->
     <script>
-        let sessionData = { name: '', age: 0, sign: '', secretAnswers: {}, coupleAnswers: {} };
+        // Banco de Dados Local
+        let dadosApp = JSON.parse(localStorage.getItem('gestao_veiculos_db')) || {
+            veiculos: [
+                { id: '1', nome: 'Honda CG 160 Titan', placa: 'ABC-1234', categoria: 'Trabalho / Moto', odometro: 14500 }
+            ],
+            transacoes: [
+                { id: 't1', veiculoId: '1', tipo: 'Abastecimento', data: '2026-09-01', desc: 'Posto Ipiranga', km: 14200, litros: 12.5, valor: 75.00, arquivoNome: '', arquivoData: '' },
+                { id: 't2', veiculoId: '1', tipo: 'Abastecimento', data: '2026-09-15', desc: 'Posto Shell', km: 14350, litros: 13.0, valor: 78.00, arquivoNome: '', arquivoData: '' },
+                { id: 't3', veiculoId: '1', tipo: 'Manutencao', data: '2026-09-20', desc: 'Troca de Óleo', km: 14400, litros: 0, valor: 55.00, arquivoNome: '', arquivoData: '' }
+            ]
+        };
 
-        // 5 Perguntas Aprofundadas para o Quiz Pessoal / Emocional
-        const secretQuestions = [
-            {
-                id: 's1', section: 'Quiz Pessoal / Emocional',
-                title: 'Como você avalia sua estabilidade emocional e humor predominante nas últimas semanas?',
-                options: ['Estável e com bom equilíbrio', 'Oscilante (altos e baixos frequentes)', 'Em desgaste ou esgotamento constante']
-            },
-            {
-                id: 's2', section: 'Quiz Pessoal / Emocional',
-                title: 'Quando você enfrenta um problema desafiivo individual, qual costuma ser sua principal reação?',
-                options: ['Busco resolver de forma prática e imediata', 'Isolo-me um pouco para processar sozinho(a)', 'Sinto-me sobrecarregado(a) e demoro a agir']
-            },
-            {
-                id: 's3', section: 'Quiz Pessoal / Emocional',
-                title: 'Seus hábitos pessoais drenam sua energia, quando falamos de vícios diversos (seja redes sociais, bebida, jogos, etc)?',
-                options: ['Não, tenho total controle sobre isso', 'Às vezes exagero, mas consigo gerenciar', 'Sim, sinto que isso drena minha energia ou vira fuga']
-            },
-            {
-                id: 's4', section: 'Quiz Pessoal / Emocional',
-                title: 'Como você enxerga o seu nível atual de realização pessoal fora do relacionamento (projetos, sonhos, lazer)?',
-                options: ['Muito satisfeito(a) e em constante evolução', 'Em busca de rumo, sinto que estagnei um pouco', 'Frustrado(a) por falta de tempo ou espaço']
-            },
-            {
-                id: 's5', section: 'Quiz Pessoal / Emocional',
-                title: 'No seu dia a dia, você sente que tem momentos genuínos de paz mental e descanso?',
-                options: ['Sim, consigo recarregar as energias bem', 'Raramente, a rotina consome meu descanso', 'Não me sinto descansado(a) há muito tempo']
+        let veiculoAtualId = dadosApp.veiculos[0] ? dadosApp.veiculos[0].id : null;
+        let graficoGastosInstance = null;
+        let graficoKmInstance = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarSeletorAnoTopo();
+            atualizarSeletorVeiculos();
+            if(veiculoAtualId) {
+                carregarVeiculo(veiculoAtualId);
             }
-        ];
+            document.getElementById('transacaoData').valueAsDate = new Date();
+        });
 
-        // 5 Perguntas Aprofundadas para Expectativas x Realidade a Dois
-        const coupleQuestions = [
-            {
-                id: 'c1', category: 'Expectativas x Realidade',
-                title: 'O nível de carinho, diálogo e cumplicidade diária condiz com o que você esperava da relação?',
-                options: ['Sim, atende ou supera minhas expectativas', 'Atende em partes, sinto falta de mais profundidade', 'Ficou bem abaixo do que eu esperava']
-            },
-            {
-                id: 'c2', category: 'Expectativas x Realidade',
-                title: 'Como você avalia a divisão de iniciativas e responsabilidades práticas no dia a dia do casal?',
-                options: ['Justa e bem equilibrada entre os dois', 'Mais ou menos, um acaba puxando mais o fardo', 'Desequilibrada, sinto que sobrecarrega um lado']
-            },
-            {
-                id: 'c3', category: 'Expectativas x Realidade',
-                title: 'Quando surgem divergências ou conflitos, como costuma ser a resolução na prática?',
-                options: ['Conversamos com respeito e encontramos acordos', 'Geramos atritos prolongados ou silêncios difíceis', 'Evitamos falar para não piorar as coisas']
-            },
-            {
-                id: 'c4', category: 'Expectativas x Realidade',
-                title: 'A intimidade e a conexão física/afetiva do casal acompanham o ritmo que faz sentido para você?',
-                options: ['Sim, estamos bem conectados nesse ponto', 'Oscila bastante conforme o estresse da rotina', 'Está distante ou fria em relação ao ideal']
-            },
-            {
-                id: 'c5', category: 'Expectativas x Realidade',
-                title: 'Olhando para os planos de médio e longo prazo, vocês caminham na mesma direção?',
-                options: ['Sim, nossos objetivos e sonhos estão alinhados', 'Temos algumas discordâncias importantes para alinhar', 'Nossos caminhos parecem estar indo para lados opostos']
-            }
-        ];
-
-        function calculateSignAndAge() {
-            const bdateVal = document.getElementById('user-birthdate').value;
-            if (!bdateVal) return;
-            
-            const dob = new Date(bdateVal);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            const m = today.getMonth() - dob.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-                age--;
-            }
-            if (!isNaN(age) && age > 0) {
-                document.getElementById('user-age').value = age;
-            }
-
-            const day = dob.getDate() + 1;
-            const month = dob.getMonth() + 1;
-            let sign = '';
-
-            if ((month == 3 && day >= 21) || (month == 4 && day <= 20)) sign = 'Áries ♈';
-            else if ((month == 4 && day >= 21) || (month == 5 && day <= 20)) sign = 'Touro ♉';
-            else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) sign = 'Gêmeos ♊';
-            else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) sign = 'Câncer ♋';
-            else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) sign = 'Leão ♌';
-            else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) sign = 'Virgem ♍';
-            else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) sign = 'Libra ♎';
-            else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) sign = 'Escorpião ♏';
-            else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) sign = 'Sagitário ♐';
-            else if ((month == 12 && day >= 22) || (month == 1 && day <= 20)) sign = 'Capricórnio ♑';
-            else if ((month == 1 && day >= 21) || (month == 2 && day <= 18)) sign = 'Aquário ♒';
-            else sign = 'Peixes ♓';
-
-            sessionData.sign = sign;
-            document.getElementById('sign-preview').innerText = `✨ Signo detectado: ${sign}`;
+        function salvarStorage() {
+            localStorage.setItem('gestao_veiculos_db', JSON.stringify(dadosApp));
         }
 
-        function startApp() {
-            const ageInput = document.getElementById('user-age').value;
-            if (!ageInput) {
-                alert('Por favor, informe ao menos a sua idade para prosseguir com a análise.');
+        // Seletor de Veículos
+        function atualizarSeletorVeiculos() {
+            const selector = document.getElementById('vehicleSelector');
+            selector.innerHTML = '';
+            if(dadosApp.veiculos.length === 0) {
+                selector.innerHTML = '<option value="">Nenhum veículo cadastrado</option>';
                 return;
             }
-            sessionData.age = parseInt(ageInput);
-            sessionData.name = document.getElementById('user-name').value || 'Anônimo(a)';
-
-            document.getElementById('step-auth').classList.add('hidden');
-            document.getElementById('step-secret').classList.remove('hidden');
-            renderSecretQuestions();
-        }
-
-        function renderSecretQuestions() {
-            const container = document.getElementById('secret-questions-container');
-            let html = '';
-            secretQuestions.forEach((q, idx) => {
-                html += `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold text-amber-600 uppercase">${q.section} (Questão ${idx+1}/5)</span>
-                        <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
-                        <div class="space-y-2">
-                `;
-                q.options.forEach((opt) => {
-                    html += `
-                        <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="sec_${q.id}" value="${opt}" class="text-rose-600"> ${opt}
-                        </label>
-                    `;
-                });
-                html += `
-                        </div>
-                        <input type="text" id="com_sec_${q.id}" placeholder="Comentário opcional (exemplo ou detalhe)..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
-                    </div>
-                `;
+            dadosApp.veiculos.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.textContent = `${v.nome} (${v.placa})`;
+                if(v.id === veiculoAtualId) opt.selected = true;
+                selector.appendChild(opt);
             });
-            container.innerHTML = html;
+            selector.onchange = (e) => {
+                veiculoAtualId = e.target.value;
+                carregarVeiculo(veiculoAtualId);
+            };
         }
 
-        function nextToCouple() {
-            for (let q of secretQuestions) {
-                const selected = document.querySelector(`input[name="sec_${q.id}"]:checked`);
-                if (!selected) {
-                    alert('Por favor, responda todas as 5 questões do check-up individual.');
-                    return;
+        function carregarVeiculo(id) {
+            veiculoAtualId = id;
+            const v = dadosApp.veiculos.find(x => x.id === id);
+            if(!v) return;
+
+            document.getElementById('veiculoNome').textContent = v.nome;
+            document.getElementById('veiculoPlaca').textContent = `PLACA: ${v.placa}`;
+            document.getElementById('veiculoCategoria').textContent = v.categoria;
+            document.getElementById('statOdometro').textContent = `${v.odometro.toLocaleString()} km`;
+
+            atualizarEstatisticas();
+            atualizarResumoMesAMes();
+            renderizarGraficos();
+            renderizarTabela();
+        }
+
+        // Estatísticas do Veículo
+        function atualizarEstatisticas() {
+            const trans = dadosApp.transacoes.filter(t => t.veiculoId === veiculoAtualId);
+            let totalAbasc = 0;
+            let totalManut = 0;
+            let totalLitros = 0;
+
+            trans.forEach(t => {
+                if(t.tipo === 'Abastecimento') {
+                    totalAbasc += Number(t.valor);
+                    totalLitros += Number(t.litros || 0);
+                } else {
+                    totalManut += Number(t.valor);
                 }
-                sessionData.secretAnswers[q.id] = {
-                    answer: selected.value,
-                    comment: document.getElementById(`com_sec_${q.id}`).value
-                };
+            });
+
+            document.getElementById('statAbastecimento').textContent = `R$ ${totalAbasc.toFixed(2)}`;
+            document.getElementById('statManutencao').textContent = `R$ ${totalManut.toFixed(2)}`;
+
+            const v = dadosApp.veiculos.find(x => x.id === veiculoAtualId);
+            // Consumo médio aproximado
+            if(totalLitros > 0 && trans.length >= 2) {
+                const kminicial = Math.min(...trans.filter(t => t.tipo === 'Abastecimento').map(t => t.km));
+                const kmfinal = v.odometro;
+                const kmRodados = kmfinal - kminicial;
+                if(kmRodados > 0) {
+                    const consumo = kmRodados / totalLitros;
+                    document.getElementById('statConsumo').textContent = `${consumo.toFixed(1)} km/L`;
+                } else {
+                    document.getElementById('statConsumo').textContent = `0.0 km/L`;
+                }
+            } else {
+                document.getElementById('statConsumo').textContent = `0.0 km/L`;
+            }
+        }
+
+        // Resumo Mês a Mês no Topo
+        function inicializarSeletorAnoTopo() {
+            const selectAno = document.getElementById('filtroAnoTopo');
+            selectAno.innerHTML = '';
+            const anoAtual = new Date().getFullYear();
+            for(let a = anoAtual; a >= anoAtual - 3; a--) {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.textContent = a;
+                if(a === anoAtual) opt.selected = true;
+                selectAno.appendChild(opt);
+            }
+        }
+
+        function atualizarResumoMesAMes() {
+            const anoSelecionado = parseInt(document.getElementById('filtroAnoTopo').value);
+            const grid = document.getElementById('gridMesAMes');
+            grid.innerHTML = '';
+
+            const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const trans = dadosApp.transacoes.filter(t => t.veiculoId === veiculoAtualId);
+
+            mesesNomes.forEach((mesNome, index) => {
+                // Filtrar transações deste mês e ano
+                const transMes = trans.filter(t => {
+                    if(!t.data) return false;
+                    const d = new Date(t.data + 'T00:00:00');
+                    return d.getFullYear() === anoSelecionado && d.getMonth() === index;
+                });
+
+                const totalMes = transMes.reduce((acc, curr) => acc + Number(curr.valor), 0);
+
+                const cardMes = document.createElement('div');
+                cardMes.className = `p-2 rounded-xl border ${totalMes > 0 ? 'bg-blue-50/50 border-blue-200' : 'bg-slate-50 border-slate-200'}`;
+                cardMes.innerHTML = `
+                    <div class="text-xs font-bold text-slate-700">${mesNome}</div>
+                    <div class="text-xs font-semibold ${totalMes > 0 ? 'text-blue-600' : 'text-slate-400'} mt-1">R$ ${totalMes.toFixed(0)}</div>
+                `;
+                grid.appendChild(cardMes);
+            });
+        }
+
+        // Modais Veículo
+        function abrirModalVeiculo() { document.getElementById('modalVeiculo').classList.remove('hidden'); }
+        function fecharModalVeiculo() { document.getElementById('modalVeiculo').classList.add('hidden'); }
+        function salvarNovoVeiculo() {
+            const nome = document.getElementById('inputNomeVeiculo').value.trim();
+            const placa = document.getElementById('inputPlacaVeiculo').value.trim().toUpperCase();
+            const categoria = document.getElementById('inputCatVeiculo').value;
+            const odometro = Number(document.getElementById('inputOdometroInicial').value) || 0;
+
+            if(!nome || !placa) {
+                alert('Preencha o nome e a placa do veículo.');
+                return;
             }
 
-            document.getElementById('step-secret').classList.add('hidden');
-            document.getElementById('step-couple').classList.remove('hidden');
-            renderCoupleQuestions();
+            const novoV = {
+                id: 'v_' + Date.now(),
+                nome, placa, categoria, odometro
+            };
+
+            dadosApp.veiculos.push(novoV);
+            salvarStorage();
+            atualizarSeletorVeiculos();
+            carregarVeiculo(novoV.id);
+            fecharModalVeiculo();
+
+            document.getElementById('inputNomeVeiculo').value = '';
+            document.getElementById('inputPlacaVeiculo').value = '';
+            document.getElementById('inputOdometroInicial').value = '';
         }
 
-        function renderCoupleQuestions() {
-            const container = document.getElementById('couple-questions-container');
-            let html = '';
-            coupleQuestions.forEach((q, idx) => {
-                html += `
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <span class="text-[10px] font-bold text-rose-600 uppercase">Tema: ${q.category} (Questão ${idx+1}/5)</span>
-                        <h3 class="font-semibold text-slate-800 text-sm mt-1 mb-3">${idx+1}. ${q.title}</h3>
-                        <div class="space-y-2">
-                `;
-                q.options.forEach((opt) => {
-                    html += `
-                        <label class="flex items-center gap-2 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 cursor-pointer hover:bg-slate-100">
-                            <input type="radio" name="cou_${q.id}" value="${opt}" class="text-rose-600"> ${opt}
-                        </label>
-                    `;
-                });
-                html += `
-                        </div>
-                        <input type="text" id="com_cou_${q.id}" placeholder="Comentário opcional (exemplo ou detalhe)..." class="w-full mt-3 p-2 text-xs rounded-lg border border-slate-200 outline-none">
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
+        // Modal KM e Cálculo Automático por Dias da Semana
+        function abrirModalKm() {
+            document.getElementById('modalKm').classList.remove('hidden');
+            mudarAbaKm('manual');
+        }
+        function fecharModalKm() { document.getElementById('modalKm').classList.add('hidden'); }
+
+        function mudarAbaKm(tipo) {
+            const btnManual = document.getElementById('tabBtnManual');
+            const btnAuto = document.getElementById('tabBtnAuto');
+            const secManual = document.getElementById('secaoKmManual');
+            const secAuto = document.getElementById('secaoKmAuto');
+
+            if(tipo === 'manual') {
+                btnManual.className = "flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition";
+                btnAuto.className = "flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition";
+                secManual.classList.remove('hidden');
+                secAuto.classList.add('hidden');
+            } else {
+                btnAuto.className = "flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition";
+                btnManual.className = "flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition";
+                secAuto.classList.remove('hidden');
+                secManual.classList.add('hidden');
+                calcularPreviewKmAuto();
+            }
         }
 
-        function finishQuiz() {
-            for (let q of coupleQuestions) {
-                const selected = document.querySelector(`input[name="cou_${q.id}"]:checked`);
-                if (!selected) {
-                    alert('Por favor, responda todas as 5 questões de Expectativas x Realidade.');
-                    return;
-                }
-                sessionData.coupleAnswers[q.id] = {
-                    answer: selected.value,
-                    comment: document.getElementById(`com_cou_${q.id}`).value
-                };
+        function atualizarLabelPeriodo() {
+            const tipo = document.getElementById('autoTipoPeriodo').value;
+            const label = document.getElementById('labelQtdPeriodo');
+            if(tipo === 'dias') label.textContent = 'Quantidade de Dias';
+            else if(tipo === 'semanas') label.textContent = 'Quantidade de Semanas';
+            else label.textContent = 'Quantidade de Meses';
+            calcularPreviewKmAuto();
+        }
+
+        function calcularPreviewKmAuto() {
+            const tipo = document.getElementById('autoTipoPeriodo').value;
+            const qtd = Number(document.getElementById('autoQtd').value) || 0;
+            const kmDia = Number(document.getElementById('autoKmPorDia').value) || 0;
+            const checkboxes = document.querySelectorAll('input[name="diasSemana"]:checked');
+            const diasAtivosPorSemana = checkboxes.length;
+
+            let totalKmCalculado = 0;
+            if(tipo === 'dias') {
+                totalKmCalculado = qtd * kmDia;
+            } else if(tipo === 'semanas') {
+                totalKmCalculado = qtd * diasAtivosPorSemana * kmDia;
+            } else if(tipo === 'meses') {
+                // Considerando média de 4.33 semanas por mês
+                totalKmCalculado = Math.round(qtd * 4.33 * diasAtivosPorSemana * kmDia);
             }
 
-            document.getElementById('step-couple').classList.add('hidden');
-            document.getElementById('step-result').classList.remove('hidden');
-            generateAIAnalysis();
+            document.getElementById('previewKmCalculado').textContent = `${totalKmCalculado.toLocaleString()} km`;
+            return totalKmCalculado;
         }
 
-        function generateAIAnalysis() {
-            const box = document.getElementById('ai-feedback-box');
-            let ageProfile = sessionData.age < 25 ? "fase de transição e consolidação de identidade" : sessionData.age < 40 ? "fase de forte construção de metas de médio prazo e rotina" : "fase de maturidade consolidada e reavaliação de prioridades";
-            let signText = sessionData.sign ? ` e regência do signo de ${sessionData.sign}` : '';
-            let hasStress = Object.values(sessionData.secretAnswers).some(val => val.answer.includes('esgotamento') || val.answer.includes('drena') || val.answer.includes('Frustrado'));
-            
-            let html = `
-                <div class="border-l-4 border-rose-500 pl-3 py-1">
-                    <strong class="text-slate-900 block mb-1">📊 Leitura de Ciclo Etário e Comportamental:</strong>
-                    A IA cruzou os dados indicando que você se encontra em uma ${ageProfile}${signText}. Isso impacta diretamente na forma como você equilibra suas demandas internas com as exigências da vida a dois.
-                </div>
-                <div class="border-l-4 border-amber-500 pl-3 py-1 mt-3">
-                    <strong class="text-slate-900 block mb-1">💡 Diagnóstico de Expectativas x Realidade:</strong>
-                    ${hasStress ? '🟡 <strong>Ponto de Atenção Detectado:</strong> Suas respostas individuais apontam sobrecarga recente ou desgaste de energia. A IA identifica que o cansaço individual pode intensificar pequenas distâncias entre a expectativa e a realidade prática da relação.' : '🟢 <strong>Alinhamento Sólido:</strong> Seus indicadores mostram um bom nível de resiliência individual e sintonia saudável nas expectativas do casal.'}
-                </div>
-                <div class="border-l-4 border-emerald-500 pl-3 py-1 mt-3">
-                    <strong class="text-slate-900 block mb-1">🛠️ Roteiro Prático para os Próximos Passos:</strong>
-                    Use os comentários que você registrou durante o teste como base para uma conversa aberta. Valide o momento emocional um do outro sem cobranças excessivas, focando em ajustes práticos de rotina.
-                </div>
-            `;
-            box.innerHTML = html;
+        // Ouvintes para atualizar preview automático em tempo real
+        document.addEventListener('input', (e) => {
+            if(['autoTipoPeriodo', 'autoQtd', 'autoKmPorDis'].includes(e.target.id) || e.target.name === 'diasSemana') {
+                calcularPreviewKmAuto();
+            }
+        });
+
+        function salvarKmManual() {
+            const novoKm = Number(document.getElementById('inputNovoKmManual').value);
+            if(!novoKm || isNaN(novoKm)) {
+                alert('Insira um valor de KM válido.');
+                return;
+            }
+            const v = dadosApp.veiculos.find(x => x.id === veiculoAtualId);
+            if(v) {
+                v.odometro = novoKm;
+                salvarStorage();
+                carregarVeiculo(veiculoAtualId);
+                fecharModalKm();
+                alert('Odômetro atualizado com sucesso!');
+            }
+        }
+
+        function salvarKmAutomatico() {
+            const kmCalculado = calcularPreviewKmAuto();
+            if(kmCalculado <= 0) {
+                alert('O KM calculado precisa ser maior que zero. Verifique os campos.');
+                return;
+            }
+            const v = dadosApp.veiculos.find(x => x.id === veiculoAtualId);
+            if(v) {
+                v.odometro += kmCalculado;
+                salvarStorage();
+                carregarVeiculo(veiculoAtualId);
+                fecharModalKm();
+                alert(`Odômetro atualizado automaticamente com +${kmCalculado.toLocaleString()} km!`);
+            }
+        }
+
+        // Modal Transação / Gastos
+        function abrirModalTransacao(id = null) {
+            document.getElementById('modalTransacao').classList.remove('hidden');
+            document.getElementById('transacaoData').valueAsDate = new Date();
+            if(id) {
+                // Modo edição
+                document.getElementById('tituloModalTransacao').textContent = 'Editar Transação';
+                const t = dadosApp.transacoes.find(x => x.id === id);
+                if(t) {
+                    document.getElementById('editTransacaoId').value = t.id;
+                    document.getElementById('transacaoTipo').value = t.tipo;
+                    document.getElementById('transacaoData').value = t.data;
+                    document.getElementById('transacaoDesc').value = t.desc;
+                    document.getElementById('transacaoKm').value = t.km;
+                    document.getElementById('transacaoLitros').value = t.litros || '';
+                    document.getElementById('transacaoPrecoLitro').value = t.precoLitro || '';
+                    document.getElementById('transacaoValor').value = t.valor;
+                }
+            } else {
+                document.getElementById('tituloModalTransacao').textContent = 'Nova Transação';
+                document.getElementById('editTransacaoId').value = '';
+                document.getElementById('transacaoDesc').value = '';
+                const v = dadosApp.veiculos.find(x => x.id === veiculoAtualId);
+                document.getElementById('transacaoKm').value = v ? v.odometro : '';
+                document.getElementById('transacaoLitros').value = '';
+                document.getElementById('transacaoPrecoLitro').value = '';
+                document.getElementById('transacaoValor').value = '';
+            }
+            alternarCamposAbastecimento();
+        }
+
+        function fecharModalTransacao() { document.getElementById('modalTransacao').classList.add('hidden'); }
+
+        function alternarCamposAbastecimento() {
+            const tipo = document.getElementById('transacaoTipo').value;
+            const campos = document.getElementById('camposAbastecimentoExtra');
+            if(tipo === 'Abastecimento') campos.classList.remove('hidden');
+            else campos.classList.add('hidden');
+        }
+
+        // Cálculo automático de valor total ao digitar litros e preço por litro
+        document.getElementById('transacaoLitros').addEventListener('input', calcularValorTotalAbasc);
+        document.getElementById('transacaoPrecoLitro').addEventListener('input', calcularValorTotalAbasc);
+
+        function calcularValorTotalAbasc() {
+            const litros = Number(document.getElementById('transacaoLitros').value) || 0;
+            const preco = Number(document.getElementById('transacaoPrecoLitro').value) || 0;
+            if(litros > 0 && preco > 0) {
+                document.getElementById('transacaoValor').value = (litros * preco).toFixed(2);
+            }
+        }
+
+        function salvarTransacao() {
+            const editId = document.getElementById('editTransacaoId').value;
+            const tipo = document.getElementById('transacaoTipo').value;
+            const data = document.getElementById('transacaoData').value;
+            const desc = document.getElementById('transacaoDesc').value.trim();
+            const km = Number(document.getElementById('transacaoKm').value) || 0;
+            const litros = Number(document.getElementById('transacaoLitros').value) || 0;
+            const precoLitro = Number(document.getElementById('transacaoPrecoLitro').value) || 0;
+            const valor = Number(document.getElementById('transacaoValor').value) || 0;
+            const arquivoInput = document.getElementById('transacaoArquivo');
+
+            if(!data || !valor) {
+                alert('Preencha pelo menos a data e o valor.');
+                return;
+            }
+
+            const processarObjetoTransacao = (arquivoNome = '', arquivoData = '') => {
+                if(editId) {
+                    const t = dadosApp.transacoes.find(x => x.id === editId);
+                    if(t) {
+                        t.tipo = tipo; t.data = data; t.desc = desc; t.km = km;
+                        t.litros = litros; t.precoLitro = precoLitro; t.valor = valor;
+                        if(arquivoNome) { t.arquivoNome = arquivoNome; t.arquivoData = arquivoData; }
+                    }
+                } else {
+                    const novaT = {
+                        id: 't_' + Date.now(),
+                        veiculoId: veiculoAtualId,
+                        tipo, data, desc, km, litros, precoLitro, valor,
+                        arquivoNome: arquivoNome || '',
+                        arquivoData: arquivoData || ''
+                    };
+                    dadosApp.transacoes.push(novaT);
+                }
+
+                // Atualizar odômetro do veículo se o KM informado for maior
+                const v = dadosApp.veiculos.find(x => x.id === veiculoAtualId);
+                if(v && km > v.odometro) {
+                    v.odometro = km;
+                }
+
+                salvarStorage();
+                carregarVeiculo(veiculoAtualId);
+                fecharModalTransacao();
+            };
+
+            if(arquivoInput.files && arquivoInput.files[0]) {
+                const file = arquivoInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processarObjetoTransacao(file.name, e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                processarObjetoTransacao();
+            }
+        }
+
+        function excluirTransacao(id) {
+            if(confirm('Deseja realmente excluir esta transação?')) {
+                dadosApp.transacoes = dadosApp.transacoes.filter(t => t.id !== id);
+                salvarStorage();
+                carregarVeiculo(veiculoAtualId);
+            }
+        }
+
+        // Tabela de Histórico com Filtros
+        function renderizarTabela() {
+            const tbody = document.getElementById('tabelaTransacoesBody');
+            tbody.innerHTML = '';
+
+            const tipoFiltro = document.getElementById('filtroTipoTransacao').value;
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+
+            let trans = dadosApp.transacoes.filter(t => t.veiculoId === veiculoAtualId);
+
+            if(tipoFiltro !== 'todos') {
+                trans = trans.filter(t => t.tipo === tipoFiltro);
+            }
+            if(dataInicio) {
+                trans = trans.filter(t => t.data >= dataInicio);
+            }
+            if(dataFim) {
+                trans = trans.filter(t => t.data <= dataFim);
+            }
+
+            // Ordenar por data decrescente
+            trans.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+            if(trans.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">Nenhum registro encontrado.</td></tr>`;
+                return;
+            }
+
+            trans.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                
+                let badgeTipo = '';
+                if(t.tipo === 'Abastecimento') badgeTipo = '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">Abastecimento</span>';
+                else if(t.tipo === 'Manutencao') badgeTipo = '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold">Manutenção</span>';
+                else badgeTipo = '<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-semibold">Outros</span>';
+
+                let botaoAnexo = '<span class="text-slate-300 text-xs">Sem anexo</span>';
+                if(t.arquivoData) {
+                    botaoAnexo = `<button onclick="abrirAnexo('${t.id}')" class="text-blue-600 hover:underline text-xs font-medium flex items-center space-x-1"><i class="fa-solid fa-paperclip"></i><span>${t.arquivoNome || 'Ver Anexo'}</span></button>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-slate-700">${t.data.split('-').reverse().join('/')}</td>
+                    <td class="px-4 py-3">${badgeTipo}</td>
+                    <td class="px-4 py-3 font-medium text-slate-900">${t.desc || '-'}</td>
+                    <td class="px-4 py-3">${t.km ? t.km.toLocaleString() + ' km' : '-'}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-900">R$ ${Number(t.valor).toFixed(2)}</td>
+                    <td class="px-4 py-3">${botaoAnexo}</td>
+                    <td class="px-4 py-3 text-center space-x-2">
+                        <button onclick="abrirModalTransacao('${t.id}')" class="text-slate-400 hover:text-blue-600 transition" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="excluirTransacao('${t.id}')" class="text-slate-400 hover:text-red-600 transition" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function limparFiltrosTabela() {
+            document.getElementById('filtroTipoTransacao').value = 'todos';
+            document.getElementById('filtroDataInicio').value = '';
+            document.getElementById('filtroDataFim').value = '';
+            renderizarTabela();
+        }
+
+        // Visualizador de PDF / Imagem
+        function abrirAnexo(id) {
+            const t = dadosApp.transacoes.find(x => x.id === id);
+            if(!t || !t.arquivoData) return;
+
+            document.getElementById('modalPdf').classList.remove('hidden');
+            const iframe = document.getElementById('iframePdf');
+            const imgPrev = document.getElementById('imagemAnexoPreview');
+            const containerImg = document.getElementById('containerImagemAnexo');
+
+            if(t.arquivoData.startsWith('data:image')) {
+                iframe.classList.add('hidden');
+                containerImg.classList.remove('hidden');
+                imgPrev.src = t.arquivoData;
+            } else {
+                containerImg.classList.add('hidden');
+                iframe.classList.remove('hidden');
+                iframe.src = t.arquivoData;
+            }
+        }
+        function fecharModalPdf() { document.getElementById('modalPdf').classList.add('hidden'); }
+
+        // Gráficos (Gastos e KM com filtro de período idêntico ao histórico)
+        function renderizarGraficos() {
+            const periodoDias = document.getElementById('filtroPeriodoGrafico').value;
+            let trans = dadosApp.transacoes.filter(t => t.veiculoId === veiculoAtualId);
+
+            if(periodoDias !== 'all') {
+                const diasLimite = parseInt(periodoDias);
+                const dataCorte = new Date();
+                dataCorte.setDate(dataCorte.getDate() - diasLimite);
+                trans = trans.filter(t => new Date(t.data) >= dataCorte);
+            }
+
+            // Ordenar por data crescente para o gráfico
+            trans.sort((a,b) => new Date(a.data) - new Date(b.data));
+
+            const labels = trans.map(t => t.data.split('-').reverse().join('/'));
+            const valoresGastos = trans.map(t => t.valor);
+            const valoresKm = trans.map(t => t.km);
+
+            // Gráfico de Gastos
+            const ctxGastos = document.getElementById('graficoGastos').getContext('2d');
+            if(graficoGastosInstance) graficoGastosInstance.destroy();
+            graficoGastosInstance = new Chart(ctxGastos, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Sem dados'],
+                    datasets: [{
+                        label: 'Gastos por Transação (R$)',
+                        data: valoresGastos.length > 0 ? valoresGastos : [0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, title: { display: true, text: 'Evolução de Gastos (R$)' } }
+                }
+            });
+
+            // Gráfico de Quilometragem
+            const ctxKm = document.getElementById('graficoKm').getContext('2d');
+            if(graficoKmInstance) graficoKmInstance.destroy();
+            graficoKmInstance = new Chart(ctxKm, {
+                type: 'line',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Sem dados'],
+                    datasets: [{
+                        label: 'Evolução Odômetro (km)',
+                        data: valoresKm.length > 0 ? valoresKm : [0],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, title: { display: true, text: 'Evolução da Quilometragem (km)' } }
+                }
+            });
         }
     </script>
 </body>
