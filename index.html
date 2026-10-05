@@ -30,10 +30,10 @@
             width: 100%;
             max-width: 480px;
             position: relative;
-            padding-bottom: 60px;
+            padding-bottom: 70px;
         }
 
-        /* Topo e Meses */
+        /* Topo e Meses Funcionais */
         .topo-header {
             display: flex;
             justify-content: space-between;
@@ -46,22 +46,28 @@
         }
 
         .topo-header button {
-            background: none;
+            background: #f8f9fa;
             border: 1px solid var(--border-color);
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             cursor: pointer;
-            font-size: 1rem;
-            color: #555;
+            font-size: 1.1rem;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .topo-header button:hover {
+            background: #e9ecef;
         }
 
         .topo-header span {
             font-weight: bold;
             font-size: 1.05rem;
+            color: #1a73e8;
         }
 
         /* Cartão de Resumo Financeiro Líquido */
@@ -119,84 +125,98 @@
             font-weight: bold;
         }
 
-        /* Formulário de Novo Lançamento */
+        /* Formulário de Novo Lançamento (Com Destaque Visual Aprimorado) */
         .form-lancamento {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            border: 2px solid #e3eeff;
         }
 
         .form-lancamento h3 {
             margin-top: 0;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: #333;
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: #1a73e8;
+            font-weight: 700;
+            border-bottom: 2px solid #f0f4f8;
+            padding-bottom: 8px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #444;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
+            padding: 11px 12px;
+            border: 1.5px solid #ccd9e8;
             border-radius: 8px;
             font-size: 1rem;
             box-sizing: border-box;
+            background-color: #fcfdfe;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
             background-color: #fff;
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #555;
+            font-size: 0.95rem;
+            color: #444;
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
 
         .btn-cadastrar {
-            background-color: var(--primary-color);
+            background-color: var(--success-color);
             color: white;
             border: none;
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
         }
 
         .btn-cadastrar:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
-        /* Seções Inferiores Estilo Acordeão / Linha */
-        .secao-inferior {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 500;
-            color: #444;
+        .btn-cadastrar:active {
+            transform: scale(0.98);
         }
 
-        /* MENU FLUTUANTE TIPO SPEED DIAL (+ / MENU) */
+        /* MENU FLUTUANTE TIPO SPEED DIAL (+) */
         .fab-container {
             position: fixed;
             bottom: 25px;
@@ -207,14 +227,14 @@
         .fab-button {
             width: 60px;
             height: 60px;
-            background-color: #2c3e50;
+            background-color: #1a73e8;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             cursor: pointer;
             border: none;
             transition: transform 0.3s ease, background-color 0.2s;
@@ -222,10 +242,9 @@
         }
 
         .fab-button:hover {
-            background-color: #1a252f;
+            background-color: #1557b0;
         }
 
-        /* Opções do Menu Flutuante */
         .fab-options {
             position: absolute;
             bottom: 75px;
@@ -256,22 +275,122 @@
         .fab-item {
             background-color: white;
             color: #333;
-            padding: 10px 16px;
+            padding: 12px 18px;
             border-radius: 25px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             white-space: nowrap;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
+            border: 1px solid #e0e0e0;
         }
 
         .fab-item:hover {
-            background-color: #f1f1f1;
+            background-color: #f1f5f9;
             color: var(--primary-color);
+        }
+
+        /* MODAL DE GRÁFICO / RELATÓRIO */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.ativo {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.ativo .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #1a73e8;
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .grafico-falso {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .barra-item label {
+            font-size: 0.85rem;
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .barra-container {
+            background: #e9ecef;
+            border-radius: 6px;
+            height: 24px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .barra-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            text-align: right;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.8rem;
+            line-height: 24px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -281,11 +400,11 @@
         <!-- Título do App -->
         <h1 style="font-size: 1.4rem; text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
 
-        <!-- Seletor de Mês -->
+        <!-- Seletor de Mês Funcional -->
         <div class="topo-header">
-            <button>&lt;</button>
-            <span>Outubro de 2026</span>
-            <button>&gt;</button>
+            <button onclick="mudarMes(-1)">&lt;</button>
+            <span id="labelMes">Outubro de 2026</span>
+            <button onclick="mudarMes(1)">&gt;</button>
         </div>
 
         <!-- Líquido -->
@@ -314,7 +433,7 @@
             </div>
         </div>
 
-        <!-- Formulário de Novo Lançamento -->
+        <!-- Formulário de Novo Lançamento (Com Contraste e Cores Melhores) -->
         <div class="form-lancamento">
             <h3>Novo Lançamento</h3>
             <div class="form-group">
@@ -326,7 +445,7 @@
             </div>
             <div class="form-group">
                 <label>Descrição</label>
-                <input type="text" class="form-control" placeholder="Ex: Aluguel">
+                <input type="text" class="form-control" placeholder="Ex: Aluguel, Supermercado...">
             </div>
             <div class="form-group">
                 <label>Valor (R$)</label>
@@ -334,38 +453,89 @@
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="pago">
-                <label for="pago" style="margin:0; color: #555;">Pago?</label>
+                <label for="pago" style="margin:0; cursor:pointer;">Pago?</label>
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="recorrente">
-                <label for="recorrente" style="margin:0; color: #555;">Conta recorrente (próx. mês com...)</label>
+                <label for="recorrente" style="margin:0; cursor:pointer;">Conta recorrente (próx. mês com...)</label>
             </div>
-            <button class="btn-cadastrar">Cadastrar</button>
-        </div>
-
-        <!-- Seções Inferiores -->
-        <div class="secao-inferior">
-            <span>📊 Gráficos (Entrada x Saída)</span>
-            <span>▼</span>
-        </div>
-        <div class="secao-inferior">
-            <span>📋 Histórico de Lançamentos</span>
-            <span>▼</span>
+            <button class="btn-cadastrar">Cadastrar Lançamento</button>
         </div>
     </div>
 
     <!-- MENU FLUTUANTE (FAB) COM OPÇÃO DE RELATÓRIO / GRÁFICO -->
     <div class="fab-container" id="fabMenu">
         <ul class="fab-options">
-            <li class="fab-item">📊 Relatórios / Gráfico</li>
+            <li class="fab-item" onclick="abrirRelatorio()">📊 Relatórios / Gráfico</li>
         </ul>
         <button class="fab-button" onclick="toggleFab()">+</button>
     </div>
 
+    <!-- MODAL DE RELATÓRIO / GRÁFICO -->
+    <div class="modal-overlay" id="modalRelatorio">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="tituloModalGrafico">Relatórios e Gráficos</h3>
+                <button class="modal-close" onclick="fecharRelatorio()">&times;</button>
+            </div>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0;">Resumo visual correspondente a <b id="mesModalLabel">Outubro de 2026</b>:</p>
+            
+            <div class="grafico-falso">
+                <div class="barra-item">
+                    <label>Receitas (R$ 0,00)</label>
+                    <div class="barra-container">
+                        <div class="barra-fill" style="width: 0%; background-color: #28a745;">0%</div>
+                    </div>
+                </div>
+                <div class="barra-item">
+                    <label>Despesas Pagas (R$ 0,00)</label>
+                    <div class="barra-container">
+                        <div class="barra-fill" style="width: 0%; background-color: #dc3545;">0%</div>
+                    </div>
+                </div>
+                <div class="barra-item">
+                    <label>Pendentes (R$ 446,88)</label>
+                    <div class="barra-container">
+                        <div class="barra-fill" style="width: 100%; background-color: #ffc107; color: #333;">100%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="fecharRelatorio()" style="margin-top: 20px; width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Fechar</button>
+        </div>
+    </div>
+
     <script>
+        // Array de meses para navegação funcional
+        const meses = [
+            "Janeiro de 2026", "Fevereiro de 2026", "Março de 2026", "Abril de 2026",
+            "Maio de 2026", "Junho de 2026", "Julho de 2026", "Agosto de 2026",
+            "Setembro de 2026", "Outubro de 2026", "Novembro de 2026", "Dezembro de 2026"
+        ];
+        let indiceMesAtual = 9; // Outubro de 2026
+
+        function mudarMes(direcao) {
+            indiceMesAtual += direcao;
+            if (indiceMesAtual < 0) indiceMesAtual = 0;
+            if (indiceMesAtual >= meses.length) indiceMesAtual = meses.length - 1;
+            
+            const mesAtualStr = meses[indiceMesAtual];
+            document.getElementById('labelMes').innerText = mesAtualStr;
+            document.getElementById('mesModalLabel').innerText = mesAtualStr;
+        }
+
         function toggleFab() {
             const fab = document.getElementById('fabMenu');
             fab.classList.toggle('ativo');
+        }
+
+        function abrirRelatorio() {
+            document.getElementById('modalRelatorio').classList.add('ativo');
+            document.getElementById('fabMenu').classList.remove('ativo');
+        }
+
+        function fecharRelatorio() {
+            document.getElementById('modalRelatorio').classList.remove('ativo');
         }
 
         // Fechar o menu ao clicar fora
