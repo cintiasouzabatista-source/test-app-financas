@@ -9,48 +9,50 @@
 </head>
 <body class="bg-light">
 
-    <div class="container py-4">
+    <div class="container py-4" style="max-width: 800px;">
         <h2 class="mb-4 text-center">Controle Financeiro</h2>
 
-        <!-- CARDS -->
+        <!-- CARD LÍQUIDO COM PENDÊNCIA (TOPO, DISCRETO) -->
+        <div class="card border-secondary mb-4 shadow-sm bg-white">
+            <div class="card-body py-3 text-center">
+                <span class="text-muted small text-uppercase fw-bold tracking-wide">Líquido (Considerando Pendências)</span>
+                <h3 id="card-liquido" class="text-dark mb-0 fw-bold">R$ 0,00</h3>
+            </div>
+        </div>
+
+        <!-- CARDS 2x2 -->
         <div class="row g-3 mb-4">
-            <div class="col-md">
-                <div class="card text-white bg-success shadow-sm">
+            <!-- Linha 1 -->
+            <div class="col-6">
+                <div class="card text-white bg-success shadow-sm h-100">
                     <div class="card-body">
                         <h6 class="card-title">Receitas</h6>
-                        <h4 id="card-receitas">R$ 0,00</h4>
+                        <h4 id="card-receitas" class="mb-0">R$ 0,00</h4>
                     </div>
                 </div>
             </div>
-            <div class="col-md">
-                <div class="card text-white bg-danger shadow-sm">
+            <div class="col-6">
+                <div class="card text-white bg-primary shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Saldo (Caixa Real)</h6>
+                        <h4 id="card-saldo" class="mb-0">R$ 0,00</h4>
+                    </div>
+                </div>
+            </div>
+            <!-- Linha 2 -->
+            <div class="col-6">
+                <div class="card text-white bg-danger shadow-sm h-100">
                     <div class="card-body">
                         <h6 class="card-title">Despesas Pagas</h6>
-                        <h4 id="card-despesas-pagas">R$ 0,00</h4>
+                        <h4 id="card-despesas-pagas" class="mb-0">R$ 0,00</h4>
                     </div>
                 </div>
             </div>
-            <div class="col-md">
-                <div class="card text-white bg-warning shadow-sm">
+            <div class="col-6">
+                <div class="card text-white bg-warning shadow-sm h-100">
                     <div class="card-body">
-                        <h6 class="card-title">Desp. Pendentes</h6>
-                        <h4 id="card-despesas-pendentes">R$ 0,00</h4>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="card text-white bg-primary shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-title">Saldo</h6>
-                        <h4 id="card-saldo">R$ 0,00</h4>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="card text-white bg-info shadow-sm">
-                    <div class="card-body">
-                        <h6 class="card-title">Líquido (c/ Pend.)</h6>
-                        <h4 id="card-liquido">R$ 0,00</h4>
+                        <h6 class="card-title">Despesas Pendentes</h6>
+                        <h4 id="card-despesas-pendentes" class="mb-0">R$ 0,00</h4>
                     </div>
                 </div>
             </div>
@@ -73,7 +75,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Descrição</label>
-                            <input type="text" id="descricao" class="form-control" required placeholder="Ex: Supermercado">
+                            <input type="text" id="descricao" class="form-control" required placeholder="Ex: Conta de Luz">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Valor (R$)</label>
@@ -81,8 +83,8 @@
                         </div>
                         <div class="col-md-3 d-flex align-items-end" id="box-status">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="pago">
-                                <label class="form-check-label" for="pago">Pago?</label>
+                                <input class="form-check-input" type="checkbox" id="status-checkbox">
+                                <label class="form-check-label" id="label-status-checkbox" for="status-checkbox">Pago?</label>
                             </div>
                         </div>
                         <div class="col-12">
@@ -125,13 +127,15 @@
 
         function toggleStatus() {
             const tipo = document.getElementById('tipo').value;
-            const boxStatus = document.getElementById('box-status');
+            const checkbox = document.getElementById('status-checkbox');
+            const label = document.getElementById('label-status-checkbox');
+
             if (tipo === 'receita') {
-                boxStatus.style.display = 'none';
-                document.getElementById('pago').checked = true; // Receita já entra como paga
+                label.innerText = "Recebido?";
+                checkbox.checked = true; // Por padrão receita já nasce recebida
             } else {
-                boxStatus.style.display = 'flex';
-                document.getElementById('pago').checked = false;
+                label.innerText = "Pago?";
+                checkbox.checked = false; // Por padrão despesa nasce pendente
             }
         }
 
@@ -141,14 +145,17 @@
             const tipo = document.getElementById('tipo').value;
             const descricao = document.getElementById('descricao').value;
             const valor = parseFloat(document.getElementById('valor').value);
-            const pago = tipo === 'receita' ? true : document.getElementById('pago').checked;
+            const statusCheckbox = document.getElementById('status-checkbox').checked;
+
+            // Se for receita e marcou que recebeu, ou se for despesa e marcou que pagou
+            let efetivado = statusCheckbox;
 
             const transacao = {
                 id: Date.now(),
                 tipo,
                 descricao,
                 valor,
-                pago
+                efetivado
             };
 
             transacoes.push(transacao);
@@ -172,21 +179,25 @@
 
             transacoes.forEach(t => {
                 if (t.tipo === 'receita') {
-                    totalReceitas += t.valor;
+                    if (t.efetivado) {
+                        totalReceitas += t.valor; // Consideramos aqui as receitas efetivamente recebidas
+                    }
                 } else {
-                    if (t.pago) {
+                    if (t.efetivado) {
                         totalDespesasPagas += t.valor;
                     } else {
                         totalDespesasPendentes += t.valor;
                     }
                 }
 
-                // Montar linha da tabela
+                // Montar badge da tabela
                 let badgeStatus = '';
                 if (t.tipo === 'receita') {
-                    badgeStatus = '<span class="badge bg-success">Recebido</span>';
+                    badgeStatus = t.efetivado 
+                        ? '<span class="badge bg-success">Recebido</span>' 
+                        : '<span class="badge bg-warning text-dark">A Receber</span>';
                 } else {
-                    badgeStatus = t.pago 
+                    badgeStatus = t.efetivado 
                         ? '<span class="badge bg-danger">Pago</span>' 
                         : '<span class="badge bg-warning text-dark">Pendente</span>';
                 }
@@ -202,9 +213,10 @@
                 `;
             });
 
-            // Saldo = Receitas - Despesas Pagas
+            // Saldo = Receitas Recebidas - Despesas Pagas
             const saldo = totalReceitas - totalDespesasPagas;
-            // Líquido = Receitas - (Despesas Pagas + Despesas Pendentes)
+            
+            // Líquido com Pendência = (Pode incluir despesas pendentes projetadas se desejar, aqui considerado: Receitas - Despesas Pagas - Despesas Pendentes)
             const liquido = totalReceitas - (totalDespesasPagas + totalDespesasPendentes);
 
             // Atualizar Cards
