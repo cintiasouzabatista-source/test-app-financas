@@ -2,65 +2,124 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Menu Embutido Financeiro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro - Menu Embutido</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            padding: 20px;
-        }
-        
-        /* Container do Menu Embutido */
-        .menu-embutido {
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            overflow: hidden;
-            width: 100%;
-            max-width: 400px;
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
         }
 
-        /* Botão que aciona a abertura */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        /* Cartão de Resumo Financeiro */
+        .card-resumo {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-resumo h2 {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+        }
+
+        .card-resumo .valor {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--danger-color);
+        }
+
+        /* ESTILO DO MENU EMBUTIDO (ACORDEÃO) */
+        .menu-embutido {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
         .menu-header {
-            background-color: #ffffff;
-            color: #333;
-            padding: 15px 20px;
+            padding: 16px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
-            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            background-color: var(--card-bg);
+            user-select: none;
         }
 
-        /* Ícone da setinha */
-        .menu-header::after {
-            content: '▼';
-            font-size: 12px;
+        .menu-header:hover {
+            background-color: #fafbfc;
+        }
+
+        /* Ícone de seta giratória */
+        .menu-header .seta {
+            font-size: 0.8rem;
             transition: transform 0.3s ease;
+            color: #666;
         }
 
-        /* Corpo do menu que fica oculto */
+        /* Conteúdo do Menu Embutido */
         .menu-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
             background-color: #fafbfc;
+            border-top: 0px solid var(--border-color);
             padding: 0 20px;
         }
 
         .menu-content ul {
             list-style: none;
-            padding: 10px 0;
+            padding: 0;
             margin: 0;
         }
 
         .menu-content li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            color: #555;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            color: #444;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: color 0.2s;
         }
 
         .menu-content li:last-child {
@@ -68,39 +127,136 @@
         }
 
         .menu-content li:hover {
-            color: #007bff;
+            color: var(--primary-color);
         }
 
-        /* Classe ativa para abrir o menu */
+        /* Estado Ativo (Aberto) */
         .menu-embutido.ativo .menu-content {
-            max-height: 200px; /* Altura suficiente para mostrar os itens */
-            padding: 10px 20px;
+            max-height: 300px; /* Altura máxima estimada para expandir */
+            padding: 10px 20px 15px 20px;
+            border-top: 1px solid var(--border-color);
         }
 
-        .menu-embutido.ativo .menu-header::after {
+        .menu-embutido.ativo .seta {
             transform: rotate(180deg);
+        }
+
+        /* Formulário padrão simulado */
+        .form-lancamento {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .btn-cadastrar {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cadastrar:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-    <!-- Estrutura do Menu Embutido -->
-    <div class="menu-embutido" id="meuMenu">
-        <div class="menu-header" onclick="toggleMenu()">
-            Opções Avançadas de Lançamento
+    <div class="container">
+        <h1>Controle Financeiro</h1>
+
+        <!-- Resumo -->
+        <div class="card-resumo">
+            <h2>Líquido (Considerando Pendências)</h2>
+            <div class="valor">R$ -446,88</div>
         </div>
-        <div class="menu-content">
-            <ul>
-                <li>📊 Gerar Relatório em PDF</li>
-                <li>🔄 Configurar Parcelamento</li>
-                <li>🏷️ Gerenciar Categorias</li>
-            </ul>
+
+        <!-- MENU EMBUTIDO 1: Ferramentas / Ações Rápidas -->
+        <div class="menu-embutido" id="menuOpcoes">
+            <div class="menu-header" onclick="toggleMenu('menuOpcoes')">
+                <span>⚡ Ações e Ferramentas Rápidas</span>
+                <span class="seta">▼</span>
+            </div>
+            <div class="menu-content">
+                <ul>
+                    <li>📊 Gerar Relatório Mensal em PDF</li>
+                    <li>🔄 Configurar Contas Recorrentes</li>
+                    <li>🏷️ Gerenciar Categorias de Gastos</li>
+                    <li>⚙️ Configurações do Sistema</li>
+                </ul>
+            </div>
         </div>
+
+        <!-- Formulário de Novo Lançamento (Simulado) -->
+        <div class="form-lancamento">
+            <h3 style="margin-top: 0; font-size: 1.1rem; margin-bottom: 15px;">Novo Lançamento</h3>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="form-control">
+                    <option>Despesa</option>
+                    <option>Receita</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" class="form-control" placeholder="Ex: Aluguel">
+            </div>
+            <div class="form-group">
+                <label>Valor (R$)</label>
+                <input type="number" class="form-control" value="0.00">
+            </div>
+            <button class="btn-cadastrar">Cadastrar</button>
+        </div>
+
+        <!-- MENU EMBUTIDO 2: Histórico ou Filtros -->
+        <div class="menu-embutido" id="menuFiltros">
+            <div class="menu-header" onclick="toggleMenu('menuFiltros')">
+                <span>🔍 Filtrar Lançamentos por Período</span>
+                <span class="seta">▼</span>
+            </div>
+            <div class="menu-content">
+                <ul>
+                    <li>📅 Ver Apenas Outubro de 2026</li>
+                    <li>📅 Ver Últimos 3 Meses</li>
+                    <li>📅 Ver Todo o Histórico</li>
+                    <li>📂 Exportar Dados (CSV / Excel)</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        function toggleMenu() {
-            const menu = document.getElementById('meuMenu');
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            // Opcional: fechar outros menus se quiser apenas um aberto por vez
             menu.classList.toggle('ativo');
         }
     </script>
