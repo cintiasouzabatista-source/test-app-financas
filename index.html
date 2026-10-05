@@ -3,46 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro</title>
+    <title>Controle Financeiro Completo</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 pb-24">
+<body class="bg-gray-100 min-h-screen p-4 pb-28">
 
     <div class="max-w-md mx-auto">
-        <!-- Cabeçalho / Resumo -->
-        <header class="flex justify-between mb-6">
-            <div class="bg-red-500 text-white p-4 rounded-xl flex-1 mr-2 shadow">
-                <p class="text-xs">Despesas</p>
-                <p class="text-lg font-bold">R$ 290,00</p>
+        <!-- Cabeçalho / Resumo Financeiro -->
+        <header class="flex justify-between gap-3 mb-6">
+            <div class="bg-red-500 text-white p-4 rounded-2xl flex-1 shadow-md">
+                <p class="text-xs font-medium opacity-90">Despesas</p>
+                <p id="totalDespesas" class="text-lg font-bold">R$ 0,00</p>
             </div>
-            <div class="bg-amber-500 text-white p-4 rounded-xl flex-1 ml-2 shadow">
-                <p class="text-xs">Receitas</p>
-                <p class="text-lg font-bold">R$ 150,00</p>
+            <div class="bg-emerald-600 text-white p-4 rounded-2xl flex-1 shadow-md">
+                <p class="text-xs font-medium opacity-90">Receitas</p>
+                <p id="totalReceitas" class="text-lg font-bold">R$ 0,00</p>
             </div>
         </header>
 
-        <!-- Lista de Movimentos (Com limpeza correta ao carregar/atualizar) -->
-        <div class="bg-white rounded-2xl p-4 shadow mb-4">
-            <h2 class="text-gray-700 font-bold mb-3">Movimentações Recentes</h2>
-            <div id="listaMovimentos" class="space-y-2">
-                <!-- Os itens serão inseridos aqui de forma limpa, sem duplicar dados antigos -->
+        <!-- Saldo Total -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-6 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-400 font-medium">Saldo Atual</p>
+                <p id="saldoTotal" class="text-xl font-extrabold text-gray-800">R$ 0,00</p>
+            </div>
+            <button onclick="limparTudo()" class="text-xs text-red-500 hover:text-red-700 font-medium underline">
+                Limpar Dados
+            </button>
+        </div>
+
+        <!-- Lista de Movimentações -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-gray-700 font-bold text-base">Movimentações</h2>
+                <span id="contadorItens" class="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-medium">0 itens</span>
+            </div>
+            <div id="listaMovimentos" class="space-y-3">
+                <!-- Os itens entram aqui dinamicamente -->
             </div>
         </div>
     </div>
 
     <!-- Modal / Card "Novo Lançamento" Recolhível -->
-    <div id="modalLancamento" class="fixed inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl p-6 transform translate-y-full transition-transform duration-300 max-w-md mx-auto z-50">
+    <div id="modalLancamento" class="fixed inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl p-6 transform translate-y-full transition-transform duration-300 max-w-md mx-auto z-50 border-t border-gray-100">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-blue-600 flex items-center gap-2">
                 <span>➕</span> Novo Lançamento
             </h3>
-            <button onclick="toggleModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            <button onclick="toggleModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold px-2">&times;</button>
         </div>
 
         <form id="formLancamento" onsubmit="salvarLancamento(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
-                <select id="tipo" class="w-full border rounded-lg p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                <select id="tipo" class="w-full border rounded-xl p-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="Despesa">Despesa</option>
                     <option value="Receita">Receita</option>
                 </select>
@@ -50,29 +64,30 @@
 
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Descrição</label>
-                <input type="text" id="descricao" placeholder="Ex: Aluguel, Salário, Supermercado..." required class="w-full border rounded-lg p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="descricao" placeholder="Ex: Aluguel, Salário, Supermercado..." required class="w-full border rounded-xl p-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Valor (R$)</label>
-                <input type="number" step="0.01" id="valor" placeholder="0,00" required class="w-full border rounded-lg p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="number" step="0.01" id="valor" placeholder="0,00" required class="w-full border rounded-xl p-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Forma de Pagamento / Recebimento</label>
-                <select id="forma" class="w-full border rounded-lg p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                <select id="forma" class="w-full border rounded-xl p-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="Cartão">Cartão</option>
                     <option value="Dinheiro">Dinheiro</option>
                     <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto</option>
                 </select>
             </div>
 
-            <div class="flex items-center gap-2">
-                <input type="checkbox" id="pago" class="w-4 h-4 text-blue-600 rounded">
-                <label for="pago" class="text-sm text-gray-700">Pago?</label>
+            <div class="flex items-center gap-2 pt-1">
+                <input type="checkbox" id="pago" class="w-4 h-4 text-blue-600 rounded accent-blue-600">
+                <label for="pago" class="text-sm text-gray-700 font-medium">Pago / Recebido?</label>
             </div>
 
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-md transition">
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl shadow-md transition">
                 Cadastrar Lançamento
             </button>
         </form>
@@ -96,35 +111,61 @@
             }
         }
 
-        // Simulação de carregamento limpo (Evita duplicar movimentos anteriores ao atualizar)
-        let movimentos = [
-            { id: 1, descricao: 'Supermercado', valor: 150.00, tipo: 'Despesa' },
-            { id: 2, descricao: 'Freelance', valor: 150.00, tipo: 'Receita' }
-        ];
+        // Carrega do localStorage ou inicia limpo
+        let movimentos = JSON.parse(localStorage.getItem('movimentos_financeiros')) || [];
 
-        function carregarMovimentos() {
+        function atualizarApp() {
             const lista = document.getElementById('listaMovimentos');
-            lista.innerHTML = ''; // Limpa o container antes de renderizar para evitar duplicações ao atualizar
+            lista.innerHTML = '';
+
+            let totalDespesas = 0;
+            let totalReceitas = 0;
 
             if (movimentos.length === 0) {
-                lista.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">Nenhum movimento registrado.</p>';
-                return;
+                lista.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">Nenhum movimento registrado ainda.</p>';
             }
 
-            movimentos.forEach(m => {
+            movimentos.forEach((m, index) => {
+                if (m.tipo === 'Despesa') {
+                    totalDespesas += m.valor;
+                } else {
+                    totalReceitas += m.valor;
+                }
+
                 const item = document.createElement('div');
-                item.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100';
+                item.className = 'flex justify-between items-center p-3.5 bg-gray-50 rounded-2xl border border-gray-100 shadow-xs';
                 item.innerHTML = `
-                    <div>
+                    <div class="space-y-0.5">
                         <p class="text-sm font-semibold text-gray-800">${m.descricao}</p>
-                        <p class="text-xs text-gray-400">${m.tipo}</p>
+                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                            <span>${m.forma}</span>
+                            <span>•</span>
+                            <span class="${m.pago ? 'text-emerald-600 font-medium' : 'text-amber-500 font-medium'}">${m.pago ? 'Pago' / 'Recebido' : 'Pendente'}</span>
+                        </div>
                     </div>
-                    <span class="font-bold ${m.tipo === 'Despesa' ? 'text-red-500' : 'text-emerald-600'}">
-                        ${m.tipo === 'Despesa' ? '-' : '+'} R$ ${m.valor.toFixed(2)}
-                    </span>
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm ${m.tipo === 'Despesa' ? 'text-red-500' : 'text-emerald-600'}">
+                            ${m.tipo === 'Despesa' ? '-' : '+'} R$ ${m.valor.toFixed(2)}
+                        </span>
+                        <button onclick="removerItem(${index})" class="text-gray-300 hover:text-red-500 font-bold text-lg px-1">&times;</button>
+                    </div>
                 `;
                 lista.appendChild(item);
             });
+
+            // Atualiza totais e contagem
+            document.getElementById('totalDespesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+            document.getElementById('totalReceitas').innerText = `R$ ${totalReceitas.toFixed(2)}`;
+            
+            const saldo = totalReceitas - totalDespesas;
+            const saldoEl = document.getElementById('saldoTotal');
+            saldoEl.innerText = `R$ ${saldo.toFixed(2)}`;
+            saldoEl.className = `text-xl font-extrabold ${saldo >= 0 ? 'text-gray-800' : 'text-red-500'}`;
+
+            document.getElementById('contadorItens').innerText = `${movimentos.length} ${movimentos.length === 1 ? 'item' : 'itens'}`;
+
+            // Salva com segurança
+            localStorage.setItem('movimentos_financeiros', JSON.stringify(movimentos));
         }
 
         function salvarLancamento(event) {
@@ -132,21 +173,33 @@
             const descricao = document.getElementById('descricao').value;
             const valor = parseFloat(document.getElementById('valor').value);
             const tipo = document.getElementById('tipo').value;
+            const forma = document.getElementById('forma').value;
+            const pago = document.getElementById('pago').checked;
 
-            // Adiciona novo item
-            movimentos.unshift({ id: Date.now(), descricao, valor, tipo });
+            movimentos.unshift({ id: Date.now(), descricao, valor, tipo, forma, pago });
             
-            // Recarrega a lista limpa
-            carregarMovimentos();
-
-            // Limpa form e fecha modal
+            atualizarApp();
             document.getElementById('formLancamento').reset();
             toggleModal();
         }
 
-        // Inicializa a aplicação de forma limpa
+        function removerItem(index) {
+            if (confirm('Deseja realmente excluir este lançamento?')) {
+                movimentos.splice(index, 1);
+                atualizarApp();
+            }
+        }
+
+        function limparTudo() {
+            if (confirm('Deseja apagar todos os registros financeiros?')) {
+                movimentos = [];
+                localStorage.removeItem('movimentos_financeiros');
+                atualizarApp();
+            }
+        }
+
         window.onload = function() {
-            carregarMovimentos();
+            atualizarApp();
         };
     </script>
 </body>
