@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle Financeiro</title>
+    <!-- Chart.js para Gráficos Reais e Profissionais -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #007bff;
+            --primary-color: #1a73e8;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
-            --bg-color: #f4f6f9;
+            --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #333333;
-            --border-color: #e0e0e0;
+            --border-color: #d1d9e0;
         }
 
         body {
@@ -30,7 +32,7 @@
             width: 100%;
             max-width: 480px;
             position: relative;
-            padding-bottom: 70px;
+            padding-bottom: 80px;
         }
 
         /* Topo e Meses Funcionais */
@@ -39,14 +41,15 @@
             justify-content: space-between;
             align-items: center;
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
+            border-radius: 14px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
         }
 
         .topo-header button {
-            background: #f8f9fa;
+            background: #f1f3f5;
             border: 1px solid var(--border-color);
             border-radius: 50%;
             width: 36px;
@@ -61,35 +64,36 @@
         }
 
         .topo-header button:hover {
-            background: #e9ecef;
+            background: #e2e6ea;
         }
 
         .topo-header span {
             font-weight: bold;
             font-size: 1.05rem;
-            color: #1a73e8;
+            color: var(--primary-color);
         }
 
         /* Cartão de Resumo Financeiro Líquido */
         .card-liquido {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
             text-align: center;
+            border: 1px solid var(--border-color);
         }
 
         .card-liquido h2 {
             font-size: 0.75rem;
             color: #666;
-            margin: 0 0 5px 0;
+            margin: 0 0 6px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .card-liquido .valor {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: var(--danger-color);
         }
@@ -103,10 +107,10 @@
         }
 
         .mini-card {
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 15px;
             color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .mini-card.receitas { background-color: var(--success-color); }
@@ -116,33 +120,36 @@
 
         .mini-card h3 {
             font-size: 0.8rem;
-            margin: 0 0 5px 0;
+            margin: 0 0 6px 0;
             font-weight: 500;
         }
 
         .mini-card .valor-card {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: bold;
         }
 
-        /* Formulário de Novo Lançamento (Com Destaque Visual Aprimorado) */
+        /* Formulário de Novo Lançamento Profissional */
         .form-lancamento {
             background: #ffffff;
-            border-radius: 14px;
-            padding: 22px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
             margin-bottom: 20px;
-            border: 2px solid #e3eeff;
+            border: 1.5px solid #dbeafe;
         }
 
         .form-lancamento h3 {
             margin-top: 0;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             margin-bottom: 18px;
-            color: #1a73e8;
+            color: var(--primary-color);
             font-weight: 700;
-            border-bottom: 2px solid #f0f4f8;
-            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .form-group {
@@ -151,28 +158,28 @@
 
         .form-group label {
             display: block;
-            font-size: 0.9rem;
-            color: #444;
+            font-size: 0.88rem;
+            color: #374151;
             margin-bottom: 6px;
             font-weight: 600;
         }
 
         .form-control {
             width: 100%;
-            padding: 11px 12px;
-            border: 1.5px solid #ccd9e8;
-            border-radius: 8px;
+            padding: 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
             font-size: 1rem;
             box-sizing: border-box;
-            background-color: #fcfdfe;
-            color: #333;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #fafbfc;
+            color: #1f2937;
+            transition: all 0.2s ease;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.12);
             background-color: #fff;
         }
 
@@ -180,18 +187,20 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             font-size: 0.95rem;
-            color: #444;
+            color: #374151;
             background: #f8fafc;
-            padding: 8px 10px;
-            border-radius: 6px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
         }
 
         .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
+            accent-color: var(--primary-color);
         }
 
         .btn-cadastrar {
@@ -199,12 +208,12 @@
             color: white;
             border: none;
             width: 100%;
-            padding: 13px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.25);
             transition: background-color 0.2s, transform 0.1s;
         }
 
@@ -225,16 +234,16 @@
         }
 
         .fab-button {
-            width: 60px;
-            height: 60px;
-            background-color: #1a73e8;
+            width: 62px;
+            height: 62px;
+            background-color: var(--primary-color);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 30px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
             cursor: pointer;
             border: none;
             transition: transform 0.3s ease, background-color 0.2s;
@@ -247,7 +256,7 @@
 
         .fab-options {
             position: absolute;
-            bottom: 75px;
+            bottom: 78px;
             right: 0;
             list-style: none;
             padding: 0;
@@ -269,39 +278,41 @@
 
         .fab-container.ativo .fab-button {
             transform: rotate(45deg);
-            background-color: #dc3545;
+            background-color: var(--danger-color);
         }
 
         .fab-item {
             background-color: white;
-            color: #333;
+            color: #1f2937;
             padding: 12px 18px;
             border-radius: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             white-space: nowrap;
-            transition: background 0.2s, color 0.2s;
-            border: 1px solid #e0e0e0;
+            transition: background 0.2s, color 0.2s, transform 0.2s;
+            border: 1px solid var(--border-color);
         }
 
         .fab-item:hover {
             background-color: #f1f5f9;
             color: var(--primary-color);
+            transform: translateX(-4px);
         }
 
-        /* MODAL DE GRÁFICO / RELATÓRIO */
+        /* MODAIS GERAIS (RELATÓRIOS E MOVIMENTAÇÕES) */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(3px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -309,6 +320,8 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .modal-overlay.ativo {
@@ -318,14 +331,18 @@
 
         .modal-card {
             background: white;
-            width: 90%;
-            max-width: 420px;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             position: relative;
             transform: translateY(20px);
             transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
 
         .modal-overlay.ativo .modal-card {
@@ -336,61 +353,158 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 12px;
         }
 
         .modal-header h3 {
             margin: 0;
-            color: #1a73e8;
-            font-size: 1.2rem;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            font-weight: 700;
         }
 
         .modal-close {
-            background: none;
+            background: #f1f3f5;
             border: none;
-            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.2rem;
             cursor: pointer;
-            color: #888;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
         .modal-close:hover {
-            color: #333;
+            background: #e2e8f0;
+            color: #111;
         }
 
-        .grafico-falso {
+        /* TABELA DE MOVIMENTAÇÕES (EDITÁVEL / EXCLUÍVEL) */
+        .lista-movimentacoes {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 5px;
         }
 
-        .barra-item label {
-            font-size: 0.85rem;
-            color: #666;
-            display: block;
-            margin-bottom: 4px;
+        .mov-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: box-shadow 0.2s;
         }
 
-        .barra-container {
-            background: #e9ecef;
+        .mov-item:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .mov-header-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mov-desc {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .mov-valor {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .mov-valor.receita { color: var(--success-color); }
+        .mov-valor.despesa { color: var(--danger-color); }
+
+        .mov-detalhes {
+            font-size: 0.82rem;
+            color: #6b7280;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-badge {
+            background: #e2e8f0;
+            padding: 2px 8px;
             border-radius: 6px;
-            height: 24px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .mov-acoes {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-acao {
+            flex: 1;
+            padding: 6px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-editar {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .btn-editar:hover { background-color: #bae6fd; }
+
+        .btn-excluir {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .btn-excluir:hover { background-color: #fecaca; }
+
+        /* SEÇÃO DE GRÁFICOS NO MODAL */
+        .graficos-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .chart-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .chart-box h4 {
+            margin: 0 0 12px 0;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+
+        .canvas-container {
+            position: relative;
             width: 100%;
-            overflow: hidden;
-        }
-
-        .barra-fill {
-            height: 100%;
-            background-color: var(--primary-color);
-            border-radius: 6px;
-            text-align: right;
-            padding-right: 8px;
-            color: white;
-            font-size: 0.8rem;
-            line-height: 24px;
-            font-weight: bold;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -398,7 +512,7 @@
 
     <div class="container">
         <!-- Título do App -->
-        <h1 style="font-size: 1.4rem; text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
+        <h1 style="font-size: 1.4rem; text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
 
         <!-- Seletor de Mês Funcional -->
         <div class="topo-header">
@@ -410,98 +524,129 @@
         <!-- Líquido -->
         <div class="card-liquido">
             <h2>Líquido (Considerando Pendências)</h2>
-            <div class="valor">R$ -446,88</div>
+            <div class="valor" id="displayLiquido">R$ 0,00</div>
         </div>
 
         <!-- 4 Cards Superiores -->
         <div class="grid-cards">
             <div class="mini-card receitas">
                 <h3>Receitas</h3>
-                <div class="valor-card">R$ 0,00</div>
+                <div class="valor-card" id="cardReceitas">R$ 0,00</div>
             </div>
             <div class="mini-card saldo">
                 <h3>Saldo (Caixa)</h3>
-                <div class="valor-card">R$ 0,00</div>
+                <div class="valor-card" id="cardSaldo">R$ 0,00</div>
             </div>
             <div class="mini-card despesas">
                 <h3>Despesas Pagas</h3>
-                <div class="valor-card">R$ 0,00</div>
+                <div class="valor-card" id="cardDespesasPagas">R$ 0,00</div>
             </div>
             <div class="mini-card pendentes">
                 <h3>Pendentes</h3>
-                <div class="valor-card">R$ 446,88</div>
+                <div class="valor-card" id="cardPendentes">R$ 0,00</div>
             </div>
         </div>
 
-        <!-- Formulário de Novo Lançamento (Com Contraste e Cores Melhores) -->
+        <!-- Formulário de Novo Lançamento Profissional -->
         <div class="form-lancamento">
-            <h3>Novo Lançamento</h3>
+            <h3 id="formTitulo">➕ Novo Lançamento</h3>
+            <input type="hidden" id="editIndex" value="">
+            
             <div class="form-group">
                 <label>Tipo</label>
-                <select class="form-control">
-                    <option>Despesa</option>
-                    <option>Receita</option>
+                <select class="form-control" id="tipoLancamento" onchange="atualizarLabelStatus()">
+                    <option value="Despesa">Despesa</option>
+                    <option value="Receita">Receita</option>
                 </select>
             </div>
+            
             <div class="form-group">
                 <label>Descrição</label>
-                <input type="text" class="form-control" placeholder="Ex: Aluguel, Supermercado...">
+                <input type="text" class="form-control" id="descLancamento" placeholder="Ex: Aluguel, Salário, Supermercado...">
             </div>
+            
             <div class="form-group">
                 <label>Valor (R$)</label>
-                <input type="number" class="form-control" value="0.00">
+                <input type="number" step="0.01" class="form-control" id="valorLancamento" value="0.00">
             </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="pago">
-                <label for="pago" style="margin:0; cursor:pointer;">Pago?</label>
+
+            <div class="form-group">
+                <label>Forma de Pagamento / Recebimento</label>
+                <select class="form-control" id="formaPagamento">
+                    <option value="Cartão">Cartão</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Transferência">Transferência</option>
+                </select>
             </div>
+
             <div class="checkbox-group">
+                <input type="checkbox" id="statusCheckbox">
+                <label for="statusCheckbox" id="labelStatusCheckbox" style="margin:0; cursor:pointer; font-weight:500;">Pago?</label>
+            </div>
+
+            <div class="checkbox-group" id="grupoRecorrente">
                 <input type="checkbox" id="recorrente">
-                <label for="recorrente" style="margin:0; cursor:pointer;">Conta recorrente (próx. mês com...)</label>
+                <label for="recorrente" style="margin:0; cursor:pointer; font-weight:500;">Conta recorrente (próx. mês com...)</label>
             </div>
-            <button class="btn-cadastrar">Cadastrar Lançamento</button>
+
+            <button class="btn-cadastrar" id="btnSalvar" onclick="salvarLancamento()">Cadastrar Lançamento</button>
+            <button id="btnCancelarEdicao" style="display:none; width:100%; margin-top:8px; padding:10px; background:#6b7280; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="cancelarEdicao()">Cancelar Edição</button>
         </div>
     </div>
 
-    <!-- MENU FLUTUANTE (FAB) COM OPÇÃO DE RELATÓRIO / GRÁFICO -->
+    <!-- MENU FLUTUANTE (FAB) COM OPÇÕES -->
     <div class="fab-container" id="fabMenu">
         <ul class="fab-options">
-            <li class="fab-item" onclick="abrirRelatorio()">📊 Relatórios / Gráfico</li>
+            <li class="fab-item" onclick="abrirRelatorio()">📊 Relatórios / Gráficos</li>
+            <li class="fab-item" onclick="abrirMovimentacoes()">✏️ Movimentações (Editar/Excluir)</li>
         </ul>
         <button class="fab-button" onclick="toggleFab()">+</button>
     </div>
 
-    <!-- MODAL DE RELATÓRIO / GRÁFICO -->
+    <!-- MODAL DE RELATÓRIO / GRÁFICOS -->
     <div class="modal-overlay" id="modalRelatorio">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 id="tituloModalGrafico">Relatórios e Gráficos</h3>
                 <button class="modal-close" onclick="fecharRelatorio()">&times;</button>
             </div>
-            <p style="font-size: 0.9rem; color: #666; margin-top: 0;">Resumo visual correspondente a <b id="mesModalLabel">Outubro de 2026</b>:</p>
+            <p style="font-size: 0.9rem; color: #6b7280; margin-top: 0; margin-bottom: 15px;">Resumo visual e analítico correspondente a <b id="mesModalLabel">Outubro de 2026</b>:</p>
             
-            <div class="grafico-falso">
-                <div class="barra-item">
-                    <label>Receitas (R$ 0,00)</label>
-                    <div class="barra-container">
-                        <div class="barra-fill" style="width: 0%; background-color: #28a745;">0%</div>
+            <div class="graficos-wrapper">
+                <div class="chart-box">
+                    <h4>Receitas vs Despesas</h4>
+                    <div class="canvas-container">
+                        <canvas id="chartReceitaDespesa"></canvas>
                     </div>
                 </div>
-                <div class="barra-item">
-                    <label>Despesas Pagas (R$ 0,00)</label>
-                    <div class="barra-container">
-                        <div class="barra-fill" style="width: 0%; background-color: #dc3545;">0%</div>
-                    </div>
-                </div>
-                <div class="barra-item">
-                    <label>Pendentes (R$ 446,88)</label>
-                    <div class="barra-container">
-                        <div class="barra-fill" style="width: 100%; background-color: #ffc107; color: #333;">100%</div>
+                <div class="chart-box">
+                    <h4>Tipos de Movimentações (Cartão, Pix, Dinheiro...)</h4>
+                    <div class="canvas-container">
+                        <canvas id="chartTiposMov"></canvas>
                     </div>
                 </div>
             </div>
             
-            <button onclick="fecharRelatorio()" style="margin-top: 20px; width: 100%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Fechar</button>
+            <button onclick="fecharRelatorio()" style="margin-top: 22px; width: 100%; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">Fechar Relatório</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE MOVIMENTAÇÕES (EDITAR / EXCLUIR) -->
+    <div class="modal-overlay" id="modalMovimentacoes">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Gerenciar Movimentações</h3>
+                <button class="modal-close" onclick="fecharMovimentacoes()">&times;</button>
+            </div>
+            <p style="font-size: 0.9rem; color: #6b7280; margin-top: 0; margin-bottom: 15px;">Toque em Editar para alterar ou Excluir em qualquer lançamento de <b id="mesMovLabel">Outubro de 2026</b>:</p>
+            
+            <div class="lista-movimentacoes" id="listaMovimentacoesContainer">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+            
+            <button onclick="fecharMovimentacoes()" style="margin-top: 22px; width: 100%; padding: 12px; background: #4b5563; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">Concluir</button>
         </div>
     </div>
 
@@ -514,6 +659,20 @@
         ];
         let indiceMesAtual = 9; // Outubro de 2026
 
+        // Base de dados simulada por mês
+        let dadosFinanceiros = {
+            "Outubro de 2026": [
+                { tipo: "Despesa", desc: "Conta de Luz", valor: 150.00, forma: "Pix", concluido: false, recorrente: true },
+                { tipo: "Despesa", desc: "Supermercado", valor: 296.88, forma: "Cartão", concluido: true, recorrente: false }
+            ],
+            "Novembro de 2026": [
+                { tipo: "Receita", desc: "Salário", valor: 3500.00, forma: "Transferência", concluido: true, recorrente: true }
+            ]
+        };
+
+        let chartRDInstance = null;
+        let chartTiposInstance = null;
+
         function mudarMes(direcao) {
             indiceMesAtual += direcao;
             if (indiceMesAtual < 0) indiceMesAtual = 0;
@@ -522,6 +681,108 @@
             const mesAtualStr = meses[indiceMesAtual];
             document.getElementById('labelMes').innerText = mesAtualStr;
             document.getElementById('mesModalLabel').innerText = mesAtualStr;
+            document.getElementById('mesMovLabel').innerText = mesAtualStr;
+            
+            atualizarCalculos();
+            if (document.getElementById('modalRelatorio').classList.contains('ativo')) {
+                atualizarGraficos();
+            }
+        }
+
+        function atualizarLabelStatus() {
+            const tipo = document.getElementById('tipoLancamento').value;
+            const label = document.getElementById('labelStatusCheckbox');
+            const grupoRec = document.getElementById('grupoRecorrente');
+            
+            if (tipo === 'Receita') {
+                label.innerText = 'Recebido?';
+                grupoRec.style.display = 'none';
+            } else {
+                label.innerText = 'Pago?';
+                grupoRec.style.display = 'flex';
+            }
+        }
+
+        function salvarLancamento() {
+            const mesAtual = meses[indiceMesAtual];
+            if (!dadosFinanceiros[mesAtual]) {
+                dadosFinanceiros[mesAtual] = [];
+            }
+
+            const tipo = document.getElementById('tipoLancamento').value;
+            const desc = document.getElementById('descLancamento').value.trim();
+            const valor = parseFloat(document.getElementById('valorLancamento').value) || 0;
+            const forma = document.getElementById('formaPagamento').value;
+            const concluido = document.getElementById('statusCheckbox').checked;
+            const recorrente = document.getElementById('recorrente').checked;
+            const editIndex = document.getElementById('editIndex').value;
+
+            if (!desc) {
+                alert('Por favor, informe a descrição do lançamento.');
+                return;
+            }
+            if (valor <= 0) {
+                alert('Informe um valor válido maior que zero.');
+                return;
+            }
+
+            const item = { tipo, desc, valor, forma, concluido, recorrente };
+
+            if (editIndex === "") {
+                dadosFinanceiros[mesAtual].push(item);
+            } else {
+                dadosFinanceiros[mesAtual][parseInt(editIndex)] = item;
+                cancelarEdicao();
+            }
+
+            // Limpar formulário
+            document.getElementById('descLancamento').value = '';
+            document.getElementById('valorLancamento').value = '0.00';
+            document.getElementById('statusCheckbox').checked = false;
+            document.getElementById('recorrente').checked = false;
+
+            atualizarCalculos();
+            alert('Lançamento salvo com sucesso!');
+        }
+
+        function atualizarCalculos() {
+            const mesAtual = meses[indiceMesAtual];
+            const itens = dadosFinanceiros[mesAtual] || [];
+
+            let receitas = 0;
+            let despesasPagas = 0;
+            let pendentes = 0;
+
+            itens.forEach(item => {
+                if (item.tipo === 'Receita') {
+                    if (item.concluido) {
+                        receitas += item.valor;
+                    } else {
+                        pendentes += item.valor; // Receita não recebida conta como pendência a receber
+                    }
+                } else {
+                    // Despesa
+                    if (item.concluido) {
+                        despesasPagas += item.valor;
+                    } else {
+                        pendentes += item.valor;
+                    }
+                }
+            });
+
+            // Saldo de caixa = Receitas recebidas - Despesas pagas
+            let saldoCaixa = receitas - despesasPagas;
+            // Líquido considerando pendências
+            let liquido = receitas - (despesasPagas + pendentes);
+
+            document.getElementById('cardReceitas').innerText = `R$ ${receitas.toFixed(2)}`;
+            document.getElementById('cardSaldo').innerText = `R$ ${saldoCaixa.toFixed(2)}`;
+            document.getElementById('cardDespesasPagas').innerText = `R$ ${despesasPagas.toFixed(2)}`;
+            document.getElementById('cardPendentes').innerText = `R$ ${pendentes.toFixed(2)}`;
+            
+            const elLiquido = document.getElementById('displayLiquido');
+            elLiquido.innerText = `R$ ${liquido.toFixed(2)}`;
+            elLiquido.style.color = liquido >= 0 ? '#28a745' : '#dc3545';
         }
 
         function toggleFab() {
@@ -532,19 +793,182 @@
         function abrirRelatorio() {
             document.getElementById('modalRelatorio').classList.add('ativo');
             document.getElementById('fabMenu').classList.remove('ativo');
+            atualizarGraficos();
         }
 
         function fecharRelatorio() {
             document.getElementById('modalRelatorio').classList.remove('ativo');
         }
 
-        // Fechar o menu ao clicar fora
+        function abrirMovimentacoes() {
+            document.getElementById('modalMovimentacoes').classList.add('ativo');
+            document.getElementById('fabMenu').classList.remove('ativo');
+            renderizarListaMovimentacoes();
+        }
+
+        function fecharMovimentacoes() {
+            document.getElementById('modalMovimentacoes').classList.remove('ativo');
+            atualizarCalculos();
+        }
+
+        function renderizarListaMovimentacoes() {
+            const mesAtual = meses[indiceMesAtual];
+            const itens = dadosFinanceiros[mesAtual] || [];
+            const container = document.getElementById('listaMovimentacoesContainer');
+            container.innerHTML = '';
+
+            if (itens.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#6b7280; font-size:0.9rem; padding: 20px 0;">Nenhuma movimentação registrada neste mês.</p>';
+                return;
+            }
+
+            itens.forEach((item, index) => {
+                const statusTexto = item.tipo === 'Receita' ? (item.concluido ? 'Recebido' : 'Pendente') : (item.concluido ? 'Pago' : 'Pendente');
+                const classeValor = item.tipo === 'Receita' ? 'receita' : 'despesa';
+                const sinal = item.tipo === 'Receita' ? '+' : '-';
+
+                const div = document.createElement('div');
+                div.className = 'mov-item';
+                div.innerHTML = `
+                    <div class="mov-header-linha">
+                        <span class="mov-desc">${item.desc}</span>
+                        <span class="mov-valor ${classeValor}">${sinal} R$ ${item.valor.toFixed(2)}</span>
+                    </div>
+                    <div class="mov-detalhes">
+                        <span class="tag-badge">${item.tipo}</span>
+                        <span class="tag-badge">${item.forma}</span>
+                        <span class="tag-badge" style="background: ${item.concluido ? '#d1fae5' : '#fef3c7'}; color: ${item.concluido ? '#065f46' : '#92400e'}">${statusTexto}</span>
+                    </div>
+                    <div class="mov-acoes">
+                        <button class="btn-acao btn-editar" onclick="prepararEdicao(${index})">✏️ Editar</button>
+                        <button class="btn-acao btn-excluir" onclick="excluirMovimentacao(${index})">🗑️ Excluir</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function prepararEdicao(index) {
+            const mesAtual = meses[indiceMesAtual];
+            const item = dadosFinanceiros[mesAtual][index];
+
+            document.getElementById('tipoLancamento').value = item.tipo;
+            atualizarLabelStatus();
+            document.getElementById('descLancamento').value = item.desc;
+            document.getElementById('valorLancamento').value = item.valor;
+            document.getElementById('formaPagamento').value = item.forma;
+            document.getElementById('statusCheckbox').checked = item.concluido;
+            document.getElementById('recorrente').checked = item.recorrente;
+            document.getElementById('editIndex').value = index;
+
+            document.getElementById('formTitulo').innerText = '✏️ Editando Lançamento';
+            document.getElementById('btnSalvar').innerText = 'Salvar Alterações';
+            document.getElementById('btnCancelarEdicao').style.display = 'block';
+
+            fecharMovimentacoes();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('descLancamento').value = '';
+            document.getElementById('valorLancamento').value = '0.00';
+            document.getElementById('statusCheckbox').checked = false;
+            document.getElementById('recorrente').checked = false;
+            document.getElementById('editIndex').value = '';
+
+            document.getElementById('formTitulo').innerText = '➕ Novo Lançamento';
+            document.getElementById('btnSalvar').innerText = 'Cadastrar Lançamento';
+            document.getElementById('btnCancelarEdicao').style.display = 'none';
+        }
+
+        function excluirMovimentacao(index) {
+            if (confirm('Tem certeza que deseja excluir esta movimentação?')) {
+                const mesAtual = meses[indiceMesAtual];
+                dadosFinanceiros[mesAtual].splice(index, 1);
+                renderizarListaMovimentacoes();
+                atualizarCalculos();
+            }
+        }
+
+        function atualizarGraficos() {
+            const mesAtual = meses[indiceMesAtual];
+            const itens = dadosFinanceiros[mesAtual] || [];
+
+            let totalReceitas = 0;
+            let totalDespesas = 0;
+            let tiposContagem = { "Cartão": 0, "Pix": 0, "Dinheiro": 0, "Débito": 0, "Transferência": 0 };
+
+            itens.forEach(item => {
+                if (item.tipo === 'Receita') {
+                    totalReceitas += item.valor;
+                } else {
+                    totalDespesas += item.valor;
+                }
+                if (tiposContagem[item.forma] !== undefined) {
+                    tiposContagem[item.forma] += item.valor;
+                }
+            });
+
+            // Destruir gráficos anteriores se existirem
+            if (chartRDInstance) chartRDInstance.destroy();
+            if (chartTiposInstance) chartTiposInstance.destroy();
+
+            // Gráfico 1: Receitas x Despesas
+            const ctxRD = document.getElementById('chartReceitaDespesa').getContext('2d');
+            chartRDInstance = new Chart(ctxRD, {
+                type: 'bar',
+                data: {
+                    labels: ['Receitas', 'Despesas'],
+                    datasets: [{
+                        data: [totalReceitas, totalDespesas],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Gráfico 2: Tipos de Movimentações
+            const ctxTipos = document.getElementById('chartTiposMov').getContext('2d');
+            chartTiposInstance = new Chart(ctxTipos, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cartão', 'Pix', 'Dinheiro', 'Débito', 'Transferência'],
+                    datasets: [{
+                        data: [
+                            tiposContagem["Cartão"],
+                            tiposContagem["Pix"],
+                            tiposContagem["Dinheiro"],
+                            tiposContagem["Débito"],
+                            tiposContagem["Transferência"]
+                        ],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+                }
+            });
+        }
+
+        // Fechar o menu flutuante ao clicar fora
         window.addEventListener('click', function(e) {
             const fab = document.getElementById('fabMenu');
             if (!fab.contains(e.target)) {
                 fab.classList.remove('ativo');
             }
         });
+
+        // Inicializar cálculos ao carregar
+        atualizarCalculos();
+        atualizarLabelStatus();
     </script>
 
 </body>
