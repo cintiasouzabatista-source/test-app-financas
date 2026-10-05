@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro - Menu Embutido</title>
+    <title>Controle Financeiro</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -29,125 +29,110 @@
         .container {
             width: 100%;
             max-width: 480px;
+            position: relative;
+            padding-bottom: 60px;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            text-align: center;
-            color: #1a73e8;
-            margin-bottom: 20px;
-        }
-
-        /* Cartão de Resumo Financeiro */
-        .card-resumo {
+        /* Topo e Meses */
+        .topo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: var(--card-bg);
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        .topo-header button {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topo-header span {
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+
+        /* Cartão de Resumo Financeiro Líquido */
+        .card-liquido {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
             text-align: center;
         }
 
-        .card-resumo h2 {
-            font-size: 0.9rem;
+        .card-liquido h2 {
+            font-size: 0.75rem;
             color: #666;
             margin: 0 0 5px 0;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .card-resumo .valor {
-            font-size: 1.8rem;
+        .card-liquido .valor {
+            font-size: 1.6rem;
             font-weight: bold;
             color: var(--danger-color);
         }
 
-        /* ESTILO DO MENU EMBUTIDO (ACORDEÃO) */
-        .menu-embutido {
-            background: var(--card-bg);
+        /* Grade de 4 Cards (Receitas, Saldo, Despesas, Pendentes) */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mini-card {
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .menu-header {
-            padding: 16px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            background-color: var(--card-bg);
-            user-select: none;
-        }
+        .mini-card.receitas { background-color: var(--success-color); }
+        .mini-card.saldo { background-color: var(--primary-color); }
+        .mini-card.despesas { background-color: var(--danger-color); }
+        .mini-card.pendentes { background-color: var(--warning-color); color: #333; }
 
-        .menu-header:hover {
-            background-color: #fafbfc;
-        }
-
-        /* Ícone de seta giratória */
-        .menu-header .seta {
+        .mini-card h3 {
             font-size: 0.8rem;
-            transition: transform 0.3s ease;
-            color: #666;
+            margin: 0 0 5px 0;
+            font-weight: 500;
         }
 
-        /* Conteúdo do Menu Embutido */
-        .menu-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
-            background-color: #fafbfc;
-            border-top: 0px solid var(--border-color);
-            padding: 0 20px;
+        .mini-card .valor-card {
+            font-size: 1.2rem;
+            font-weight: bold;
         }
 
-        .menu-content ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-content li {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            color: #444;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-
-        .menu-content li:last-child {
-            border-bottom: none;
-        }
-
-        .menu-content li:hover {
-            color: var(--primary-color);
-        }
-
-        /* Estado Ativo (Aberto) */
-        .menu-embutido.ativo .menu-content {
-            max-height: 300px; /* Altura máxima estimada para expandir */
-            padding: 10px 20px 15px 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .menu-embutido.ativo .seta {
-            transform: rotate(180deg);
-        }
-
-        /* Formulário padrão simulado */
+        /* Formulário de Novo Lançamento */
         .form-lancamento {
             background: var(--card-bg);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 15px;
+        }
+
+        .form-lancamento h3 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #333;
         }
 
         .form-group {
@@ -168,6 +153,16 @@
             border-radius: 8px;
             font-size: 1rem;
             box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #555;
         }
 
         .btn-cadastrar {
@@ -185,38 +180,143 @@
         .btn-cadastrar:hover {
             background-color: #0056b3;
         }
+
+        /* Seções Inferiores Estilo Acordeão / Linha */
+        .secao-inferior {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+            color: #444;
+        }
+
+        /* MENU FLUTUANTE TIPO SPEED DIAL (+ / MENU) */
+        .fab-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+        }
+
+        .fab-button {
+            width: 60px;
+            height: 60px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s ease, background-color 0.2s;
+            user-select: none;
+        }
+
+        .fab-button:hover {
+            background-color: #1a252f;
+        }
+
+        /* Opções do Menu Flutuante */
+        .fab-options {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fab-container.ativo .fab-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .fab-container.ativo .fab-button {
+            transform: rotate(45deg);
+            background-color: #dc3545;
+        }
+
+        .fab-item {
+            background-color: white;
+            color: #333;
+            padding: 10px 16px;
+            border-radius: 25px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .fab-item:hover {
+            background-color: #f1f1f1;
+            color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Controle Financeiro</h1>
+        <!-- Título do App -->
+        <h1 style="font-size: 1.4rem; text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
 
-        <!-- Resumo -->
-        <div class="card-resumo">
+        <!-- Seletor de Mês -->
+        <div class="topo-header">
+            <button>&lt;</button>
+            <span>Outubro de 2026</span>
+            <button>&gt;</button>
+        </div>
+
+        <!-- Líquido -->
+        <div class="card-liquido">
             <h2>Líquido (Considerando Pendências)</h2>
             <div class="valor">R$ -446,88</div>
         </div>
 
-        <!-- MENU EMBUTIDO 1: Ferramentas / Ações Rápidas -->
-        <div class="menu-embutido" id="menuOpcoes">
-            <div class="menu-header" onclick="toggleMenu('menuOpcoes')">
-                <span>⚡ Ações e Ferramentas Rápidas</span>
-                <span class="seta">▼</span>
+        <!-- 4 Cards Superiores -->
+        <div class="grid-cards">
+            <div class="mini-card receitas">
+                <h3>Receitas</h3>
+                <div class="valor-card">R$ 0,00</div>
             </div>
-            <div class="menu-content">
-                <ul>
-                    <li>📊 Gerar Relatório Mensal em PDF</li>
-                    <li>🔄 Configurar Contas Recorrentes</li>
-                    <li>🏷️ Gerenciar Categorias de Gastos</li>
-                    <li>⚙️ Configurações do Sistema</li>
-                </ul>
+            <div class="mini-card saldo">
+                <h3>Saldo (Caixa)</h3>
+                <div class="valor-card">R$ 0,00</div>
+            </div>
+            <div class="mini-card despesas">
+                <h3>Despesas Pagas</h3>
+                <div class="valor-card">R$ 0,00</div>
+            </div>
+            <div class="mini-card pendentes">
+                <h3>Pendentes</h3>
+                <div class="valor-card">R$ 446,88</div>
             </div>
         </div>
 
-        <!-- Formulário de Novo Lançamento (Simulado) -->
+        <!-- Formulário de Novo Lançamento -->
         <div class="form-lancamento">
-            <h3 style="margin-top: 0; font-size: 1.1rem; margin-bottom: 15px;">Novo Lançamento</h3>
+            <h3>Novo Lançamento</h3>
             <div class="form-group">
                 <label>Tipo</label>
                 <select class="form-control">
@@ -232,33 +332,49 @@
                 <label>Valor (R$)</label>
                 <input type="number" class="form-control" value="0.00">
             </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="pago">
+                <label for="pago" style="margin:0; color: #555;">Pago?</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="recorrente">
+                <label for="recorrente" style="margin:0; color: #555;">Conta recorrente (próx. mês com...)</label>
+            </div>
             <button class="btn-cadastrar">Cadastrar</button>
         </div>
 
-        <!-- MENU EMBUTIDO 2: Histórico ou Filtros -->
-        <div class="menu-embutido" id="menuFiltros">
-            <div class="menu-header" onclick="toggleMenu('menuFiltros')">
-                <span>🔍 Filtrar Lançamentos por Período</span>
-                <span class="seta">▼</span>
-            </div>
-            <div class="menu-content">
-                <ul>
-                    <li>📅 Ver Apenas Outubro de 2026</li>
-                    <li>📅 Ver Últimos 3 Meses</li>
-                    <li>📅 Ver Todo o Histórico</li>
-                    <li>📂 Exportar Dados (CSV / Excel)</li>
-                </ul>
-            </div>
+        <!-- Seções Inferiores -->
+        <div class="secao-inferior">
+            <span>📊 Gráficos (Entrada x Saída)</span>
+            <span>▼</span>
         </div>
+        <div class="secao-inferior">
+            <span>📋 Histórico de Lançamentos</span>
+            <span>▼</span>
+        </div>
+    </div>
 
+    <!-- MENU FLUTUANTE (FAB) COM OPÇÃO DE RELATÓRIO / GRÁFICO -->
+    <div class="fab-container" id="fabMenu">
+        <ul class="fab-options">
+            <li class="fab-item">📊 Relatórios / Gráfico</li>
+        </ul>
+        <button class="fab-button" onclick="toggleFab()">+</button>
     </div>
 
     <script>
-        function toggleMenu(menuId) {
-            const menu = document.getElementById(menuId);
-            // Opcional: fechar outros menus se quiser apenas um aberto por vez
-            menu.classList.toggle('ativo');
+        function toggleFab() {
+            const fab = document.getElementById('fabMenu');
+            fab.classList.toggle('ativo');
         }
+
+        // Fechar o menu ao clicar fora
+        window.addEventListener('click', function(e) {
+            const fab = document.getElementById('fabMenu');
+            if (!fab.contains(e.target)) {
+                fab.classList.remove('ativo');
+            }
+        });
     </script>
 
 </body>
