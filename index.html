@@ -3,34 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Lançamento - Finance App</title>
+    <title>Controle Financeiro Avançado</title>
+    <!-- Chart.js para os Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-color: #333333;
-            --text-secondary: #666666;
             --border-color: #e0e0e0;
-            --primary-color: #0066ff;
-            --primary-hover: #0052cc;
-            --chip-bg: #f0f2f5;
-            --chip-selected-bg: #0066ff;
-            --chip-selected-text: #ffffff;
-            --chip-border: #d0d5dd;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --border-color: #2c2c2c;
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --chip-bg: #2a2a2a;
-            --chip-selected-bg: #3b82f6;
-            --chip-selected-text: #ffffff;
-            --chip-border: #404040;
         }
 
         body {
@@ -40,249 +25,935 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
         }
 
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        .container {
             width: 100%;
-            max-width: 420px;
-            padding: 24px;
-            box-sizing: border-box;
-            border: 1px solid var(--border-color);
-            transition: background-color 0.3s, border-color 0.3s;
+            max-width: 480px;
+            position: relative;
+            padding-bottom: 80px;
         }
 
-        .card-header {
+        /* Topo e Meses */
+        .topo-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
-        .card-title {
-            display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
         }
 
-        .card-title span.icon {
-            background: var(--primary-color);
-            color: white;
+        .topo-header button {
+            background: none;
+            border: 1px solid var(--border-color);
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: inline-flex;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #555;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
+        .topo-header span {
+            font-weight: bold;
+            font-size: 1.05rem;
         }
 
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
+        /* Cartão de Resumo Financeiro Líquido */
+        .card-liquido {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .card-liquido h2 {
+            font-size: 0.75rem;
+            color: #666;
+            margin: 0 0 5px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            font-size: 15px;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.2s;
+        .card-liquido .valor {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--danger-color);
         }
 
-        input[type="text"]:focus,
-        input[type="number"]:focus {
+        /* Grade de 4 Cards */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mini-card {
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .mini-card.receitas { background-color: var(--success-color); }
+        .mini-card.saldo { background-color: var(--primary-color); }
+        .mini-card.despesas { background-color: var(--danger-color); }
+        .mini-card.pendentes { background-color: var(--warning-color); color: #333; }
+
+        .mini-card h3 {
+            font-size: 0.8rem;
+            margin: 0 0 5px 0;
+            font-weight: 500;
+        }
+
+        .mini-card .valor-card {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Formulário Colapsável de Novo Lançamento */
+        .painel-colapsavel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .painel-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #333;
+            background: var(--card-bg);
+            user-select: none;
+        }
+
+        .painel-conteudo {
+            padding: 0 20px 20px 20px;
+            display: none;
+        }
+
+        .painel-conteudo.ativo {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+            outline: none;
+        }
+
+        .form-control:focus {
             border-color: var(--primary-color);
         }
 
-        /* Cloud Chips Container */
-        .chips-container {
+        .baloes-selecao {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
 
-        .chip {
-            background-color: var(--chip-bg);
-            border: 1px solid var(--chip-border);
-            color: var(--text-color);
-            padding: 8px 14px;
+        .balao-opcao {
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: #555;
             border-radius: 20px;
-            font-size: 14px;
+            padding: 8px 13px;
+            font-size: 0.85rem;
             cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
-        .chip:hover {
+        .balao-opcao:hover {
             border-color: var(--primary-color);
         }
 
-        .chip.selected {
-            background-color: var(--chip-selected-bg);
-            color: var(--chip-selected-text);
-            border-color: var(--chip-selected-bg);
-            font-weight: 500;
+        .balao-opcao.selecionado {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #555;
             cursor: pointer;
         }
 
-        .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            margin: 0;
-            text-transform: none;
-            font-size: 14px;
-            color: var(--text-color);
-            cursor: pointer;
-        }
-
-        .btn-submit {
-            width: 100%;
+        .btn-cadastrar {
             background-color: var(--primary-color);
             color: white;
             border: none;
+            width: 100%;
+            padding: 12px;
             border-radius: 8px;
-            padding: 14px;
-            font-size: 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-cadastrar:hover {
+            background-color: #0056b3;
+        }
+
+        /* Seções Inferiores */
+        .secao-inferior {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+            color: #444;
+            user-select: none;
+        }
+
+        /* MODAL GERAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.ativo {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.ativo .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .btn-fechar-modal {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Lista de Lançamentos no Modal de Histórico */
+        .lista-movimentos {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .item-movimento {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .item-movimento:last-child {
+            border-bottom: none;
+        }
+
+        .item-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .item-info span {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .item-acoes-grupo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-acao {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-editar { color: var(--primary-color); background: #e7f1ff; }
+        .btn-excluir { color: var(--danger-color); background: #f8d7da; }
+
+        /* MENU FLUTUANTE (FAB) */
+        .fab-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+        }
+
+        .fab-button {
+            width: 60px;
+            height: 60px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s ease, background-color 0.2s;
+            user-select: none;
+        }
+
+        .fab-button:hover { background-color: #1a252f; }
+
+        .fab-options {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fab-container.ativo .fab-options {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .fab-container.ativo .fab-button {
+            transform: rotate(45deg);
+            background-color: #dc3545;
+        }
+
+        .fab-item {
+            background-color: white;
+            color: #333;
+            padding: 10px 16px;
+            border-radius: 25px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: background 0.2s;
         }
 
-        .btn-submit:hover {
-            background-color: var(--primary-hover);
-        }
+        .fab-item:hover { background-color: #f1f1f1; color: var(--primary-color); }
     </style>
 </head>
-<body data-theme="light">
+<body>
 
-    <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙 Modo Escuro</button>
+    <div class="container">
+        <!-- Título -->
+        <h1 style="font-size: 1.4rem; text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <span class="icon">+</span> Novo Lançamento
-            </h2>
+        <!-- Seletor de Mês -->
+        <div class="topo-header">
+            <button onclick="mudarMes(-1)">&lt;</button>
+            <span id="labelMesAno">Outubro de 2026</span>
+            <button onclick="mudarMes(1)">&gt;</button>
         </div>
 
-        <form onsubmit="event.preventDefault(); alert('Salvo com sucesso!');">
-            
-            <!-- Tipo de Movimentação em Nuvens -->
-            <div class="form-group">
-                <label>Tipo de Movimentação</label>
-                <div class="chips-container" id="typeChips">
-                    <div class="chip selected" onclick="selectChip('typeChips', this)">PIX</div>
-                    <div class="chip" onclick="selectChip('typeChips', this)">Cartão</div>
-                    <div class="chip" onclick="selectChip('typeChips', this)">Débito</div>
-                    <div class="chip" onclick="selectChip('typeChips', this)">Dinheiro</div>
-                </div>
-            </div>
+        <!-- Líquido -->
+        <div class="card-liquido">
+            <h2>Líquido (Considerando Pendências)</h2>
+            <div id="cardLiquidoValor" class="valor">R$ 0,00</div>
+        </div>
 
-            <!-- Contas Principais em Nuvens -->
-            <div class="form-group">
-                <label>Conta Principal</label>
-                <div class="chips-container" id="accountChips">
-                    <div class="chip selected" onclick="selectChip('accountChips', this)">Nubank</div>
-                    <div class="chip" onclick="selectChip('accountChips', this)">Itaú</div>
-                    <div class="chip" onclick="selectChip('accountChips', this)">Carteira</div>
-                    <div class="chip" onclick="selectChip('accountChips', this)">Inter</div>
-                </div>
+        <!-- 4 Cards Superiores -->
+        <div class="grid-cards">
+            <div class="mini-card receitas">
+                <h3>Receitas</h3>
+                <div id="cardReceitas" class="valor-card">R$ 0,00</div>
             </div>
-
-            <div class="form-group">
-                <label for="descricao">Descrição</label>
-                <input type="text" id="descricao" value="Aluguel" placeholder="Ex: Aluguel, Supermercado...">
+            <div class="mini-card saldo">
+                <h3>Saldo (Caixa)</h3>
+                <div id="cardSaldo" class="valor-card">R$ 0,00</div>
             </div>
-
-            <div class="form-group">
-                <label for="valor">Valor (R$)</label>
-                <input type="number" id="valor" value="1000" placeholder="0,00" step="0.01">
+            <div class="mini-card despesas">
+                <h3>Despesas Pagas</h3>
+                <div id="cardDespesasPagas" class="valor-card">R$ 0,00</div>
             </div>
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="pago">
-                <label for="pago">Pago / Recebido?</label>
+            <div class="mini-card pendentes">
+                <h3>Pendentes</h3>
+                <div id="cardPendentes" class="valor-card">R$ 0,00</div>
             </div>
+        </div>
 
-            <button type="submit" class="btn-submit">Salvar Alterações</button>
-        </form>
+        <!-- Painel Colapsável de Novo Lançamento -->
+        <div class="painel-colapsavel">
+            <div class="painel-header" onclick="togglePainelNovo()">
+                <span>➕ Novo Lançamento</span>
+                <span id="setaPainel">▼</span>
+            </div>
+            <div id="conteudoPainelNovo" class="painel-conteudo">
+                <form id="formLancamento" onsubmit="salvarMovimento(event)">
+                    <input type="hidden" id="editIndex" value="">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="inputTipo" class="form-control">
+                            <option value="Despesa">Despesa</option>
+                            <option value="Receita">Receita</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <input type="text" id="inputDescricao" class="form-control" placeholder="Ex: Aluguel" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" step="0.01" id="inputValor" class="form-control" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Conta</label>
+                        <div class="baloes-selecao" id="baloesConta">
+                            <button type="button" class="balao-opcao selecionado" data-value="Conta principal" onclick="selecionarBalao('conta','Conta principal',this)">Conta principal</button>
+                            <button type="button" class="balao-opcao" data-value="Nubank" onclick="selecionarBalao('conta','Nubank',this)">Nubank</button>
+                            <button type="button" class="balao-opcao" data-value="Itaú" onclick="selecionarBalao('conta','Itaú',this)">Itaú</button>
+                            <button type="button" class="balao-opcao" data-value="Caixa" onclick="selecionarBalao('conta','Caixa',this)">Caixa</button>
+                            <button type="button" class="balao-opcao" data-value="Santander" onclick="selecionarBalao('conta','Santander',this)">Santander</button>
+                            <button type="button" class="balao-opcao" data-value="Outra" onclick="selecionarBalao('conta','Outra',this)">+ Outra</button>
+                        </div>
+                        <input type="hidden" id="inputConta" value="Conta principal">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Movimentação</label>
+                        <div class="baloes-selecao" id="baloesForma">
+                            <button type="button" class="balao-opcao selecionado" data-value="PIX" onclick="selecionarBalao('forma','PIX',this)">PIX</button>
+                            <button type="button" class="balao-opcao" data-value="Débito" onclick="selecionarBalao('forma','Débito',this)">Débito</button>
+                            <button type="button" class="balao-opcao" data-value="Crédito" onclick="selecionarBalao('forma','Crédito',this)">Crédito</button>
+                            <button type="button" class="balao-opcao" data-value="Dinheiro" onclick="selecionarBalao('forma','Dinheiro',this)">Dinheiro</button>
+                            <button type="button" class="balao-opcao" data-value="Transferência" onclick="selecionarBalao('forma','Transferência',this)">Transferência</button>
+                            <button type="button" class="balao-opcao" data-value="Boleto" onclick="selecionarBalao('forma','Boleto',this)">Boleto</button>
+                        </div>
+                        <input type="hidden" id="inputForma" value="PIX">
+                    </div>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="inputPago" checked>
+                        <span>Pago / Recebido?</span>
+                    </label>
+                    <label class="checkbox-group" id="grupoRecorrente">
+                        <input type="checkbox" id="inputRecorrente">
+                        <span>Conta recorrente (repetir todo mês)</span>
+                    </label>
+                    <button type="submit" id="btnSalvarForm" class="btn-cadastrar">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Seções Inferiores -->
+<div class="secao-inferior" onclick="abrirModalHistorico()">
+            <span>📋 Histórico de Lançamentos (Editar / Excluir)</span>
+            <span>▶</span>
+        </div>
+    </div>
+
+    <!-- MENU FLUTUANTE (FAB) COM OPÇÃO DE RELATÓRIO PDF -->
+    <div class="fab-container" id="fabMenu">
+        <ul class="fab-options">
+            <li class="fab-item" onclick="gerarRelatorioPDF()">📄 Exportar Relatório PDF</li>
+            <li class="fab-item" onclick="abrirModalGraficos()">📊 Ver Gráficos</li>
+        </ul>
+        <button class="fab-button" onclick="toggleFab()">+</button>
+    </div>
+
+    <!-- MODAL DE HISTÓRICO (EDIÇÃO E EXCLUSÃO) -->
+    <div id="modalHistorico" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Histórico do Mês</h3>
+                <button class="btn-fechar-modal" onclick="fecharModalHistorico()">&times;</button>
+            </div>
+            <ul id="listaHistoricoModal" class="lista-movimentos">
+                <!-- Itens carregados dinamicamente -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- MODAL DE GRÁFICOS -->
+    <div id="modalGraficos" class="modal-overlay">
+        <div class="modal-card" style="max-width: 460px;">
+            <div class="modal-header">
+                <h3>Gráficos Financeiros</h3>
+                <button class="btn-fechar-modal" onclick="fecharModalGraficos()">&times;</button>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="text-align:center; font-size: 0.9rem; color:#666; margin-bottom: 8px;">Receitas x Despesas</h4>
+                <canvas id="graficoReceitaDespesa" style="max-height: 200px;"></canvas>
+            </div>
+            <div>
+                <h4 style="text-align:center; font-size: 0.9rem; color:#666; margin-bottom: 8px;">Despesas x Contas</h4>
+                <canvas id="graficoCategorias" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
     </div>
 
     <script>
-        function selectChip(containerId, element) {
-            const container = document.getElementById(containerId);
-            container.querySelectorAll('.chip').forEach(chip => {
-                chip.classList.remove('selected');
-            });
-            element.classList.add('selected');
+        const mesesNomes = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+
+        let dataAtual = new Date();
+        let movimentos = JSON.parse(localStorage.getItem('movimentos_financeiros_v3')) || [];
+        let chartRD = null;
+        let chartCat = null;
+
+        function selecionarBalao(tipo, valor, botao) {
+            const grupoId = tipo === 'conta' ? 'baloesConta' : 'baloesForma';
+            const inputId = tipo === 'conta' ? 'inputConta' : 'inputForma';
+            document.querySelectorAll('#' + grupoId + ' .balao-opcao').forEach(b => b.classList.remove('selecionado'));
+            botao.classList.add('selecionado');
+            document.getElementById(inputId).value = valor;
         }
 
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById('themeToggleBtn');
-            if (body.getAttribute('data-theme') === 'light') {
-                body.setAttribute('data-theme', 'dark');
-                btn.textContent = '☀️ Modo Claro';
+        function selecionarBalaoPorValor(tipo, valor) {
+            const grupoId = tipo === 'conta' ? 'baloesConta' : 'baloesForma';
+            const inputId = tipo === 'conta' ? 'inputConta' : 'inputForma';
+            const botoes = document.querySelectorAll('#' + grupoId + ' .balao-opcao');
+            let encontrado = false;
+            botoes.forEach(b => {
+                const selecionado = b.dataset.value === valor;
+                b.classList.toggle('selecionado', selecionado);
+                if (selecionado) encontrado = true;
+            });
+            if (!encontrado) {
+                botoes.forEach(b => b.classList.remove('selecionado'));
+            }
+            document.getElementById(inputId).value = valor;
+        }
+
+        function toggleFab() {
+            document.getElementById('fabMenu').classList.toggle('ativo');
+        }
+
+        window.addEventListener('click', function(e) {
+            const fab = document.getElementById('fabMenu');
+            if (!fab.contains(e.target)) {
+                fab.classList.remove('ativo');
+            }
+        });
+
+        function togglePainelNovo() {
+            const conteudo = document.getElementById('conteudoPainelNovo');
+            const seta = document.getElementById('setaPainel');
+            conteudo.classList.toggle('ativo');
+            seta.innerText = conteudo.classList.contains('ativo') ? '▲' : '▼';
+        }
+
+        function mudarMes(direcao) {
+            dataAtual.setMonth(dataAtual.getMonth() + direcao);
+            atualizarInterface();
+        }
+
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function obterMovimentosMes() {
+            const mesIndex = dataAtual.getMonth();
+            const ano = dataAtual.getFullYear();
+            return movimentos.filter(m => {
+                const [mAno, mMes] = m.data.split('-');
+                return parseInt(mAno) === ano && parseInt(mMes) === (mesIndex + 1);
+            });
+        }
+
+        function atualizarInterface() {
+            const mesIndex = dataAtual.getMonth();
+            const ano = dataAtual.getFullYear();
+            document.getElementById('labelMesAno').innerText = `${mesesNomes[mesIndex]} de ${ano}`;
+
+            const movimentosMes = obterMovimentosMes();
+
+            let receitas = 0;
+            let despesasPagas = 0;
+            let pendentes = 0;
+
+            movimentosMes.forEach(m => {
+                if (m.tipo === 'Receita') {
+                    if (m.pago) receitas += m.valor;
+                    else pendentes += m.valor;
+                } else {
+                    if (m.pago) despesasPagas += m.valor;
+                    else pendentes += m.valor;
+                }
+            });
+
+            const saldoCaixa = receitas - despesasPagas;
+            const liquido = receitas - (despesasPagas + pendentes);
+
+            document.getElementById('cardReceitas').innerText = formatarMoeda(receitas);
+            document.getElementById('cardSaldo').innerText = formatarMoeda(saldoCaixa);
+            document.getElementById('cardDespesasPagas').innerText = formatarMoeda(despesasPagas);
+            document.getElementById('cardPendentes').innerText = formatarMoeda(pendentes);
+
+            const liquidoEl = document.getElementById('cardLiquidoValor');
+            liquidoEl.innerText = formatarMoeda(liquido);
+            liquidoEl.style.color = liquido >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+
+            localStorage.setItem('movimentos_financeiros_v3', JSON.stringify(movimentos));
+        }
+
+        function salvarMovimento(e) {
+            e.preventDefault();
+            const editIndex = document.getElementById('editIndex').value;
+            const tipo = document.getElementById('inputTipo').value;
+            const descricao = document.getElementById('inputDescricao').value;
+            const valor = parseFloat(document.getElementById('inputValor').value);
+            const forma = document.getElementById('inputForma').value;
+            const conta = document.getElementById('inputConta').value;
+            const pago = document.getElementById('inputPago').checked;
+            const recorrente = document.getElementById('inputRecorrente').checked;
+
+            const ano = dataAtual.getFullYear();
+            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+            const dataStr = `${ano}-${mes}`;
+
+            if (editIndex !== "") {
+                // Modo Edição
+                movimentos[editIndex].tipo = tipo;
+                movimentos[editIndex].descricao = descricao;
+                movimentos[editIndex].valor = valor;
+                movimentos[editIndex].forma = forma;
+                movimentos[editIndex].conta = conta;
+                movimentos[editIndex].pago = pago;
+                document.getElementById('editIndex').value = "";
+                document.getElementById('btnSalvarForm').innerText = "Cadastrar";
+                document.getElementById('grupoRecorrente').style.display = "block";
             } else {
-                body.setAttribute('data-theme', 'light');
-                btn.textContent = '🌙 Modo Escuro';
+                // Novo Lançamento
+                movimentos.push({
+                    id: Date.now(),
+                    tipo,
+                    descricao,
+                    valor,
+                    forma,
+                    conta,
+                    pago,
+                    data: dataStr
+                });
+
+                if (recorrente) {
+                    let tempDate = new Date(dataAtual);
+                    for (let i = 1; i <= 12; i++) {
+                        tempDate.setMonth(tempDate.getMonth() + 1);
+                        const rAno = tempDate.getFullYear();
+                        const rMes = String(tempDate.getMonth() + 1).padStart(2, '0');
+                        movimentos.push({
+                            id: Date.now() + i,
+                            tipo,
+                            descricao,
+                            valor,
+                            forma,
+                            conta,
+                            pago: false,
+                            data: `${rAno}-${rMes}`
+                        });
+                    }
+                }
+            }
+
+            document.getElementById('formLancamento').reset();
+            selecionarBalaoPorValor('conta', 'Conta principal');
+            selecionarBalaoPorValor('forma', 'PIX');
+            document.getElementById('inputPago').checked = true;
+            togglePainelNovo(); // recolher o painel após salvar
+            atualizarInterface();
+            if(document.getElementById('modalHistorico').classList.contains('ativo')) {
+                carregarListaHistoricoModal();
             }
         }
+
+        // Modal Histórico
+        function abrirModalHistorico() {
+            carregarListaHistoricoModal();
+            document.getElementById('modalHistorico').classList.add('ativo');
+        }
+
+        function fecharModalHistorico() {
+            document.getElementById('modalHistorico').classList.remove('ativo');
+        }
+
+        function carregarListaHistoricoModal() {
+            const movimentosMes = obterMovimentosMes();
+            const listaEl = document.getElementById('listaHistoricoModal');
+            listaEl.innerHTML = '';
+
+            if (movimentosMes.length === 0) {
+                listaEl.innerHTML = '<li style="text-align:center; color:#888; font-size:0.85rem; padding: 20px 0;">Nenhum lançamento neste mês.</li>';
+                return;
+            }
+
+            movimentosMes.forEach(m => {
+                const realIndex = movimentos.findIndex(item => item.id === m.id);
+                const li = document.createElement('li');
+                li.className = 'item-movimento';
+                li.innerHTML = `
+                    <div class="item-info">
+                        <p>${m.descricao}</p>
+                        <span>${m.tipo} • ${m.conta || 'Conta principal'} • ${m.forma || 'PIX'} • ${m.pago ? 'Pago/Recebido' : 'Pendente'}</span>
+                    </div>
+                    <div class="item-acoes-grupo">
+                        <span style="color: ${m.tipo === 'Receita' ? 'var(--success-color)' : 'var(--danger-color)'}; font-size:0.85rem;">
+                            ${m.tipo === 'Receita' ? '+' : '-'} ${formatarMoeda(m.valor)}
+                        </span>
+                        <button class="btn-acao btn-editar" onclick="editarMovimento(${realIndex})">✏️</button>
+                        <button class="btn-acao btn-excluir" onclick="excluirMovimento(${realIndex})">🗑️</button>
+                    </div>
+                `;
+                listaEl.appendChild(li);
+            });
+        }
+
+        function editarMovimento(index) {
+            const m = movimentos[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('inputTipo').value = m.tipo;
+            document.getElementById('inputDescricao').value = m.descricao;
+            document.getElementById('inputValor').value = m.valor;
+            selecionarBalaoPorValor('forma', m.forma || 'PIX');
+            selecionarBalaoPorValor('conta', m.conta || 'Conta principal');
+            document.getElementById('inputPago').checked = m.pago;
+            document.getElementById('btnSalvarForm').innerText = "Salvar Alterações";
+            document.getElementById('grupoRecorrente').style.display = "none"; // esconder recorrência na edição
+
+            fecharModalHistorico();
+            // Abrir painel colapsável de formulário
+            const conteudo = document.getElementById('conteudoPainelNovo');
+            if(!conteudo.classList.contains('ativo')) {
+                togglePainelNovo();
+            }
+        }
+
+        function excluirMovimento(index) {
+            if (confirm('Deseja realmente excluir este lançamento?')) {
+                movimentos.splice(index, 1);
+                atualizarInterface();
+                carregarListaHistoricoModal();
+            }
+        }
+
+        // Modal Gráficos
+        function abrirModalGraficos() {
+            document.getElementById('modalGraficos').classList.add('ativo');
+            renderizarGraficos();
+        }
+
+        function fecharModalGraficos() {
+            document.getElementById('modalGraficos').classList.remove('ativo');
+        }
+
+        function renderizarGraficos() {
+            const movimentosMes = obterMovimentosMes();
+
+            let totalReceitas = 0;
+            let totalDespesas = 0;
+
+            movimentosMes.forEach(m => {
+                if (m.tipo === 'Receita') {
+                    totalReceitas += Number(m.valor) || 0;
+                } else if (m.tipo === 'Despesa') {
+                    totalDespesas += Number(m.valor) || 0;
+                }
+            });
+
+            // Gráfico 1 — Receitas x Despesas
+            const ctxRD = document.getElementById('graficoReceitaDespesa').getContext('2d');
+            if (chartRD) chartRD.destroy();
+
+            chartRD = new Chart(ctxRD, {
+                type: 'bar',
+                data: {
+                    labels: ['Receitas', 'Despesas'],
+                    datasets: [{
+                        label: 'Valor (R$)',
+                        data: [totalReceitas, totalDespesas],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + formatarMoeda(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + Number(value).toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico 2 — Despesas x Contas
+            const despesasPorConta = {};
+
+            movimentosMes
+                .filter(m => m.tipo === 'Despesa')
+                .forEach(m => {
+                    const conta = m.conta || 'Conta principal';
+                    despesasPorConta[conta] = (despesasPorConta[conta] || 0) + (Number(m.valor) || 0);
+                });
+
+            const contas = Object.keys(despesasPorConta);
+            const labelsContas = contas.length ? contas : ['Nenhuma despesa'];
+            const valoresContas = contas.length ? contas.map(conta => despesasPorConta[conta]) : [0];
+
+            const ctxCat = document.getElementById('graficoCategorias').getContext('2d');
+            if (chartCat) chartCat.destroy();
+
+            chartCat = new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: labelsContas,
+                    datasets: [{
+                        label: 'Despesas (R$)',
+                        data: valoresContas,
+                        backgroundColor: '#007bff',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + formatarMoeda(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + Number(value).toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function gerarRelatorioPDF() {
+            const mesIndex = dataAtual.getMonth();
+            const ano = dataAtual.getFullYear();
+            window.print(); // Abre a janela de impressão do navegador onde o usuário pode selecionar "Salvar como PDF" perfeitamente formatado.
+        }
+
+        window.onload = function() {
+            atualizarInterface();
+        };
     </script>
 </body>
 </html>
