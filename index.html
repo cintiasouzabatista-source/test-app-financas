@@ -3,17 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro Completo</title>
+    <title>Novo Lançamento - Finance App</title>
     <style>
         :root {
-            --primary-color: #007bff;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-color: #333333;
+            --text-secondary: #666666;
             --border-color: #e0e0e0;
+            --primary-color: #0066ff;
+            --primary-hover: #0052cc;
+            --chip-bg: #f0f2f5;
+            --chip-selected-bg: #0066ff;
+            --chip-selected-text: #ffffff;
+            --chip-border: #d0d5dd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #2c2c2c;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --chip-bg: #2a2a2a;
+            --chip-selected-bg: #3b82f6;
+            --chip-selected-text: #ffffff;
+            --chip-border: #404040;
         }
 
         body {
@@ -23,595 +40,249 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            position: relative;
-            padding-bottom: 80px;
-        }
-
-        /* Topo e Meses */
-        .topo-header {
-            display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .topo-header button {
-            background: none;
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 1rem;
-            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .card-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .card-title span.icon {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
+            font-size: 14px;
         }
 
-        .topo-header span {
-            font-weight: bold;
-            font-size: 1.05rem;
+        .form-group {
+            margin-bottom: 18px;
         }
 
-        /* Cartão de Resumo Financeiro Líquido */
-        .card-liquido {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .card-liquido h2 {
-            font-size: 0.75rem;
-            color: #666;
-            margin: 0 0 5px 0;
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .card-liquido .valor {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: var(--danger-color);
-        }
-
-        /* Grade de 4 Cards (Receitas, Saldo, Despesas, Pendentes) */
-        .grid-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .mini-card {
-            border-radius: 12px;
-            padding: 15px;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .mini-card.receitas { background-color: var(--success-color); }
-        .mini-card.saldo { background-color: var(--primary-color); }
-        .mini-card.despesas { background-color: var(--danger-color); }
-        .mini-card.pendentes { background-color: var(--warning-color); color: #333; }
-
-        .mini-card h3 {
-            font-size: 0.8rem;
-            margin: 0 0 5px 0;
-            font-weight: 500;
-        }
-
-        .mini-card .valor-card {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        /* Formulário de Novo Lançamento */
-        .form-lancamento {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
-
-        .form-lancamento h3 {
-            margin-top: 0;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .form-control {
+        input[type="text"],
+        input[type="number"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px 14px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 15px;
             box-sizing: border-box;
-            background-color: #fff;
             outline: none;
+            transition: border-color 0.2s;
         }
 
-        .form-control:focus {
+        input[type="text"]:focus,
+        input[type="number"]:focus {
             border-color: var(--primary-color);
+        }
+
+        /* Cloud Chips Container */
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            background-color: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            color: var(--text-color);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            border-color: var(--primary-color);
+        }
+
+        .chip.selected {
+            background-color: var(--chip-selected-bg);
+            color: var(--chip-selected-text);
+            border-color: var(--chip-selected-bg);
+            font-weight: 500;
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #555;
+            gap: 10px;
+            margin: 20px 0;
             cursor: pointer;
         }
 
-        .btn-cadastrar {
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            text-transform: none;
+            font-size: 14px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
             background-color: var(--primary-color);
             color: white;
             border: none;
-            width: 100%;
-            padding: 12px;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-cadastrar:hover {
-            background-color: #0056b3;
-        }
-
-        /* Seções Inferiores Estilo Acordeão / Linha */
-        .secao-inferior {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 500;
-            color: #444;
-            user-select: none;
-        }
-
-        /* Conteúdo expansível do Histórico */
-        .conteudo-historico {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .conteudo-historico.ativo {
-            display: block;
-        }
-
-        .lista-movimentos {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .item-movimento {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .item-movimento:last-child {
-            border-bottom: none;
-        }
-
-        .item-info p {
-            margin: 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .item-info span {
-            font-size: 0.75rem;
-            color: #888;
-        }
-
-        .item-acoes {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .item-acoes span {
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .btn-remover {
-            background: none;
-            border: none;
-            color: var(--danger-color);
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 0 4px;
-        }
-
-        /* MENU FLUTUANTE TIPO SPEED DIAL (+ / MENU) */
-        .fab-container {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 1000;
-        }
-
-        .fab-button {
-            width: 60px;
-            height: 60px;
-            background-color: #2c3e50;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            border: none;
-            transition: transform 0.3s ease, background-color 0.2s;
-            user-select: none;
-        }
-
-        .fab-button:hover {
-            background-color: #1a252f;
-        }
-
-        .fab-options {
-            position: absolute;
-            bottom: 75px;
-            right: 0;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(15px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .fab-container.ativo .fab-options {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .fab-container.ativo .fab-button {
-            transform: rotate(45deg);
-            background-color: #dc3545;
-        }
-
-        .fab-item {
-            background-color: white;
-            color: #333;
-            padding: 10px 16px;
-            border-radius: 25px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-            font-size: 0.9rem;
+            padding: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-            transition: background 0.2s;
+            transition: background-color 0.2s;
         }
 
-        .fab-item:hover {
-            background-color: #f1f1f1;
-            color: var(--primary-color);
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-    <div class="container">
-        <!-- Título do App -->
-        <h1 style="font-size: 1.4rem; text-align: center; color: #1a73e8; margin-top: 0; margin-bottom: 15px;">Controle Financeiro</h1>
+    <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙 Modo Escuro</button>
 
-        <!-- Seletor de Mês -->
-        <div class="topo-header">
-            <button onclick="mudarMes(-1)">&lt;</button>
-            <span id="labelMesAno">Outubro de 2026</span>
-            <button onclick="mudarMes(1)">&gt;</button>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <span class="icon">+</span> Novo Lançamento
+            </h2>
         </div>
 
-        <!-- Líquido -->
-        <div class="card-liquido">
-            <h2>Líquido (Considerando Pendências)</h2>
-            <div id="cardLiquidoValor" class="valor">R$ 0,00</div>
-        </div>
-
-        <!-- 4 Cards Superiores -->
-        <div class="grid-cards">
-            <div class="mini-card receitas">
-                <h3>Receitas</h3>
-                <div id="cardReceitas" class="valor-card">R$ 0,00</div>
-            </div>
-            <div class="mini-card saldo">
-                <h3>Saldo (Caixa)</h3>
-                <div id="cardSaldo" class="valor-card">R$ 0,00</div>
-            </div>
-            <div class="mini-card despesas">
-                <h3>Despesas Pagas</h3>
-                <div id="cardDespesasPagas" class="valor-card">R$ 0,00</div>
-            </div>
-            <div class="mini-card pendentes">
-                <h3>Pendentes</h3>
-                <div id="cardPendentes" class="valor-card">R$ 0,00</div>
-            </div>
-        </div>
-
-        <!-- Formulário de Novo Lançamento -->
-        <div class="form-lancamento">
-            <h3>Novo Lançamento</h3>
-            <form id="formLancamento" onsubmit="adicionarMovimento(event)">
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select id="inputTipo" class="form-control">
-                        <option value="Despesa">Despesa</option>
-                        <option value="Receita">Receita</option>
-                    </select>
+        <form onsubmit="event.preventDefault(); alert('Salvo com sucesso!');">
+            
+            <!-- Tipo de Movimentação em Nuvens -->
+            <div class="form-group">
+                <label>Tipo de Movimentação</label>
+                <div class="chips-container" id="typeChips">
+                    <div class="chip selected" onclick="selectChip('typeChips', this)">PIX</div>
+                    <div class="chip" onclick="selectChip('typeChips', this)">Cartão</div>
+                    <div class="chip" onclick="selectChip('typeChips', this)">Débito</div>
+                    <div class="chip" onclick="selectChip('typeChips', this)">Dinheiro</div>
                 </div>
-                <div class="form-group">
-                    <label>Descrição</label>
-                    <input type="text" id="inputDescricao" class="form-control" placeholder="Ex: Aluguel" required>
+            </div>
+
+            <!-- Contas Principais em Nuvens -->
+            <div class="form-group">
+                <label>Conta Principal</label>
+                <div class="chips-container" id="accountChips">
+                    <div class="chip selected" onclick="selectChip('accountChips', this)">Nubank</div>
+                    <div class="chip" onclick="selectChip('accountChips', this)">Itaú</div>
+                    <div class="chip" onclick="selectChip('accountChips', this)">Carteira</div>
+                    <div class="chip" onclick="selectChip('accountChips', this)">Inter</div>
                 </div>
-                <div class="form-group">
-                    <label>Valor (R$)</label>
-                    <input type="number" step="0.01" id="inputValor" class="form-control" placeholder="0.00" required>
-                </div>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="inputPago" checked>
-                    <span>Pago / Recebido?</span>
-                </label>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="inputRecorrente">
-                    <span>Conta recorrente (repetir todo mês)</span>
-                </label>
-                <button type="submit" class="btn-cadastrar">Cadastrar</button>
-            </form>
-        </div>
+            </div>
 
-        <!-- Seções Inferiores -->
-        <div class="secao-inferior" onclick="alert('Módulo de Gráficos em desenvolvimento!')">
-            <span>📊 Gráficos (Entrada x Saída)</span>
-            <span>▼</span>
-        </div>
-        
-        <div class="secao-inferior" onclick="toggleHistorico()">
-            <span>📋 Histórico de Lançamentos</span>
-            <span id="setaHistorico">▼</span>
-        </div>
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <input type="text" id="descricao" value="Aluguel" placeholder="Ex: Aluguel, Supermercado...">
+            </div>
 
-        <!-- Lista Detalhada Recolhível -->
-        <div id="secaoHistoricoConteudo" class="conteudo-historico">
-            <ul id="listaHistorico" class="lista-movimentos">
-                <!-- Itens injetados via JS -->
-            </ul>
-        </div>
-    </div>
+            <div class="form-group">
+                <label for="valor">Valor (R$)</label>
+                <input type="number" id="valor" value="1000" placeholder="0,00" step="0.01">
+            </div>
 
-    <!-- MENU FLUTUANTE (FAB) COM OPÇÃO DE RELATÓRIO / GRÁFICO -->
-    <div class="fab-container" id="fabMenu">
-        <ul class="fab-options">
-            <li class="fab-item" onclick="alert('Relatório exportado com sucesso!')">📊 Relatórios / Gráfico</li>
-        </ul>
-        <button class="fab-button" onclick="toggleFab()">+</button>
+            <div class="checkbox-group">
+                <input type="checkbox" id="pago">
+                <label for="pago">Pago / Recebido?</label>
+            </div>
+
+            <button type="submit" class="btn-submit">Salvar Alterações</button>
+        </form>
     </div>
 
     <script>
-        const mesesNomes = [
-            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-
-        let dataAtual = new Date(); // Mês atual do sistema
-        let movimentos = JSON.parse(localStorage.getItem('movimentos_financeiros_v2')) || [];
-
-        function toggleFab() {
-            const fab = document.getElementById('fabMenu');
-            fab.classList.toggle('ativo');
-        }
-
-        function toggleHistorico() {
-            const conteudo = document.getElementById('secaoHistoricoConteudo');
-            const seta = document.getElementById('setaHistorico');
-            conteudo.classList.toggle('ativo');
-            seta.innerText = conteudo.classList.contains('ativo') ? '▲' : '▼';
-        }
-
-        // Fechar o menu ao clicar fora
-        window.addEventListener('click', function(e) {
-            const fab = document.getElementById('fabMenu');
-            if (!fab.contains(e.target)) {
-                fab.classList.remove('ativo');
-            }
-        });
-
-        function mudarMes(direcao) {
-            dataAtual.setMonth(dataAtual.getMonth() + direcao);
-            atualizarInterface();
-        }
-
-        function formatarMoeda(valor) {
-            return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        }
-
-        function atualizarInterface() {
-            const mesIndex = dataAtual.getMonth();
-            const ano = dataAtual.getFullYear();
-            document.getElementById('labelMesAno').innerText = `${mesesNomes[mesIndex]} de ${ano}`;
-
-            // Filtrar movimentos do mês/ano atual
-            const movimentosMes = movimentos.filter(m => {
-                const [mAno, mMes] = m.data.split('-');
-                return parseInt(mAno) === ano && parseInt(mMes) === (mesIndex + 1);
+        function selectChip(containerId, element) {
+            const container = document.getElementById(containerId);
+            container.querySelectorAll('.chip').forEach(chip => {
+                chip.classList.remove('selected');
             });
-
-            let receitas = 0;
-            let despesasPagas = 0;
-            let pendentes = 0;
-
-            const listaEl = document.getElementById('listaHistorico');
-            listaEl.innerHTML = '';
-
-            if (movimentosMes.length === 0) {
-                listaEl.innerHTML = '<li style="text-align:center; color:#888; font-size:0.85rem; padding: 15px 0;">Nenhum lançamento neste mês.</li>';
-            }
-
-            movimentosMes.forEach(m => {
-                if (m.tipo === 'Receita') {
-                    if (m.pago) receitas += m.valor;
-                    else pendentes += m.valor; // ou considerar como receita pendente
-                } else {
-                    if (m.pago) despesasPagas += m.valor;
-                    else pendentes += m.valor;
-                }
-
-                // Renderizar item na lista
-                const li = document.createElement('li');
-                li.className = 'item-movimento';
-                li.innerHTML = `
-                    <div class="item-info">
-                        <p>${m.descricao}</p>
-                        <span>${m.tipo} • ${m.pago ? 'Pago/Recebido' : 'Pendente'}</span>
-                    </div>
-                    <div class="item-acoes">
-                        <span style="color: ${m.tipo === 'Receita' ? 'var(--success-color)' : 'var(--danger-color)'};">
-                            ${m.tipo === 'Receita' ? '+' : '-'} ${formatarMoeda(m.valor)}
-                        </span>
-                        <button class="btn-remover" onclick="removerMovimento(${m.id})">&times;</button>
-                    </div>
-                `;
-                listaEl.appendChild(li);
-            });
-
-            // Saldo (Caixa): Receitas - Despesas Pagas
-            const saldoCaixa = receitas - despesasPagas;
-            // Líquido (Considerando Pendências): Receitas - (Despesas Pagas + Pendentes) ou lógica similar
-            // Vamos adotar: Saldo total incluindo pendências de despesas
-            const liquido = receitas - (despesasPagas + pendentes);
-
-            document.getElementById('cardReceitas').innerText = formatarMoeda(receitas);
-            document.getElementById('cardSaldo').innerText = formatarMoeda(saldoCaixa);
-            document.getElementById('cardDespesasPagas').innerText = formatarMoeda(despesasPagas);
-            document.getElementById('cardPendentes').innerText = formatarMoeda(pendentes);
-
-            const liquidoEl = document.getElementById('cardLiquidoValor');
-            liquidoEl.innerText = formatarMoeda(liquido);
-            liquidoEl.style.color = liquido >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
-
-            localStorage.setItem('movimentos_financeiros_v2', JSON.stringify(movimentos));
+            element.classList.add('selected');
         }
 
-        function adicionarMovimento(e) {
-            e.preventDefault();
-            const tipo = document.getElementById('inputTipo').value;
-            const descricao = document.getElementById('inputDescricao').value;
-            const valor = parseFloat(document.getElementById('inputValor').value);
-            const pago = document.getElementById('inputPago').checked;
-            const recorrente = document.getElementById('inputRecorrente').checked;
-
-            const ano = dataAtual.getFullYear();
-            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
-            const dataStr = `${ano}-${mes}`;
-
-            // Adiciona o movimento atual
-            movimentos.push({
-                id: Date.now(),
-                tipo,
-                descricao,
-                valor,
-                pago,
-                data: dataStr
-            });
-
-            // Se for recorrente, adiciona para os próximos 12 meses também
-            if (recorrente) {
-                let tempDate = new Date(dataAtual);
-                for (let i = 1; i <= 12; i++) {
-                    tempDate.setMonth(tempDate.getMonth() + 1);
-                    const rAno = tempDate.getFullYear();
-                    const rMes = String(tempDate.getMonth() + 1).padStart(2, '0');
-                    movimentos.push({
-                        id: Date.now() + i,
-                        tipo,
-                        descricao,
-                        valor,
-                        pago: false, // Futuros recorrentes começam como pendentes
-                        data: `${rAno}-${rMes}`
-                    });
-                }
-            }
-
-            document.getElementById('formLancamento').reset();
-            document.getElementById('inputPago').checked = true; // manter padrão
-            atualizarInterface();
-            
-            // Abrir histórico automaticamente para o usuário ver o lançamento inserido
-            const conteudo = document.getElementById('secaoHistoricoConteudo');
-            if (!conteudo.classList.contains('ativo')) {
-                toggleHistorico();
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeToggleBtn');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                btn.textContent = '☀️ Modo Claro';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                btn.textContent = '🌙 Modo Escuro';
             }
         }
-
-        function removerMovimento(id) {
-            if (confirm('Deseja excluir este lançamento?')) {
-                movimentos = movimentos.filter(m => m.id !== id);
-                atualizarInterface();
-            }
-        }
-
-        // Inicializar app ao carregar
-        window.onload = function() {
-            atualizarInterface();
-        };
     </script>
 </body>
 </html>
